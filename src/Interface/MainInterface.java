@@ -1,8 +1,5 @@
 package Interface;
 
-import Domain.Books;
-import File.BooksFile;
-import java.io.File;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -19,6 +16,9 @@ import javafx.stage.Stage;
 
 public class MainInterface extends Application {
 
+    VBox presentador = new VBox();
+    InterfaceModules interfaceM = new InterfaceModules();
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -33,33 +33,88 @@ public class MainInterface extends Application {
         primaryStage.setMinWidth(500);
         primaryStage.setMinHeight(450);
         primaryStage.show();
-    }
+        
+    }//fin start
 
     public VBox menuBar() {
-        
-        InterfaceModules im= new InterfaceModules();
+                
         HBox hbx_window= new HBox();
         VBox vbx_upperSide = new VBox();
-        
+      
         hbx_window.setAlignment(Pos.CENTER);
         hbx_window.setSpacing(10);
 
+        Scene scene = new Scene(new VBox(), 1000, 650);
+
+
         //Menu que despliega categorias principales
-        Menu menuStudents = new Menu("Estudiantes");
-        Menu menuMaterials = new Menu("Materiales");
-        Menu menuLoans = new Menu("Prestamos");
-        
-        //Menu Items
-        MenuItem addStudents= new MenuItem("Agregar Estudiante");
-        addStudents.setOnAction((event) -> {
+        Menu mnu_menuStudents = new Menu("Estudiantes");
+        mnu_menuStudents.setMnemonicParsing(true);
+
+        MenuItem mim_enterStudent = new MenuItem("Ingresar");
+        mim_enterStudent.setOnAction((event) -> {
+            presentador.getChildren().clear();
             hbx_window.getChildren().clear();
-            hbx_window.getChildren().addAll(im.studentRegister(), im.showTableView());
+            hbx_window.getChildren().addAll(interfaceM.studentRegister(), interfaceM.showTableView());
         });
-                 
-        MenuBar mainMenu = new MenuBar();
-        menuStudents.getItems().add(addStudents);
-        mainMenu.getMenus().addAll(menuStudents,menuMaterials,menuLoans);
         
+        mnu_menuStudents.getItems().addAll(mim_enterStudent);
+
+        Menu mnu_menuMaterials = new Menu("Materiales");
+        mnu_menuMaterials.setMnemonicParsing(true);
+
+        MenuItem mim_enterBooks = new MenuItem("Libros");
+        mim_enterBooks.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            presentador.getChildren().clear();
+            presentador.getChildren().addAll(interfaceM.enterBooks());
+        });
+
+        MenuItem mim_enterAudiovisual = new MenuItem("Audiovisual");
+        mim_enterAudiovisual.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            presentador.getChildren().clear();
+            presentador.getChildren().addAll(interfaceM.enterAudioVisual());
+        });
+
+        MenuItem mim_enterView = new MenuItem("Mostrar");
+        mim_enterView.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            presentador.getChildren().clear();
+//            presentador.getChildren().addAll(im.acercade());
+        });                              
+
+        mnu_menuMaterials.getItems().addAll(mim_enterBooks, mim_enterAudiovisual, mim_enterView);
+
+        Menu mnu_menuLoans = new Menu("Prestamos");
+        mnu_menuLoans.setMnemonicParsing(true);
+
+        MenuItem mim_bookLoans = new MenuItem("Libros");
+        mim_bookLoans.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            presentador.getChildren().clear();
+//            presentador.getChildren().addAll(im.acercade());
+        });
+
+        MenuItem mim_AudioVisualLoan = new MenuItem("Audiovisual");
+        mim_AudioVisualLoan.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            presentador.getChildren().clear();
+//            presentador.getChildren().addAll(im.acercade());
+        });
+
+        MenuItem mim_loansView = new MenuItem("Mostrar");
+        mim_loansView.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            presentador.getChildren().clear();
+//            presentador.getChildren().addAll(im.acercade());
+        });
+      
+        mnu_menuLoans.getItems().addAll(mim_bookLoans, mim_AudioVisualLoan, mim_loansView);
+       
+        MenuBar mnb_mainMenu = new MenuBar();
+        mnb_mainMenu.getMenus().addAll(mnu_menuStudents, mnu_menuMaterials, mnu_menuLoans);
+
         //Despliegue del logo en el programa
         Image img_logo = new Image(MainInterface.class.getResourceAsStream("/Images/logoBiblioT.png"));
         ImageView imv_logo = new ImageView();
@@ -67,16 +122,15 @@ public class MainInterface extends Application {
         imv_logo.setFitHeight(170);
         imv_logo.setFitWidth(300);
         
-        //vbox captura los nodos
-        vbx_upperSide.getChildren().addAll(imv_logo,mainMenu, hbx_window);
+        presentador.setPrefSize(scene.getWidth(), scene.getWidth());
+
+        vbx_upperSide.getChildren().addAll(imv_logo, mnb_mainMenu, hbx_window, presentador);
 
         return vbx_upperSide;
     }
    
     public static void main(String[] args) throws IOException {
-        launch(args);
-        
-        
+        launch(args);        
     }
-
+    
 }
