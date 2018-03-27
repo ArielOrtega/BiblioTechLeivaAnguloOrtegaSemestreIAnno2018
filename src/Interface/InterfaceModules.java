@@ -60,18 +60,21 @@ public class InterfaceModules {
         TableView<Student> table = new TableView<>();
         
         TableColumn columnId= new TableColumn("Carnet");
+        columnId.setStyle("-fx-background-color: CADETBLUE");
         columnId.setCellValueFactory(new PropertyValueFactory("id"));
         
         TableColumn columnName= new TableColumn("Nombre");
         columnName.setCellValueFactory(new PropertyValueFactory("name"));
         
         TableColumn columnYear= new TableColumn("Año Ingreso");
+        columnYear.setStyle("-fx-background-color: CADETBLUE");
         columnYear.setCellValueFactory(new PropertyValueFactory("entryYear"));
         
         TableColumn columnCareer= new TableColumn("Carrera");
         columnCareer.setCellValueFactory(new PropertyValueFactory("career"));
     
         TableColumn columnLoans= new TableColumn("Préstamos");
+        columnLoans.setStyle("-fx-background-color: CADETBLUE");
         columnLoans.setCellValueFactory(new PropertyValueFactory("previousLoans"));    
         
         table.getColumns().addAll(columnId, columnName, columnYear, columnCareer, columnLoans);
