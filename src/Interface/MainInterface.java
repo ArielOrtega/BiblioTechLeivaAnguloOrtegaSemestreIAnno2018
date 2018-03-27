@@ -1,5 +1,9 @@
 package Interface;
 
+import Domain.Books;
+import File.BooksFile;
+import java.io.File;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -68,10 +72,11 @@ public class MainInterface extends Application {
 
         return vbx_upperSide;
     }
-
    
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         launch(args);
+        
+        
     }
 
 }

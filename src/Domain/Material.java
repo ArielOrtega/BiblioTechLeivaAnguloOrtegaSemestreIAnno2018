@@ -53,5 +53,5 @@ public class Material {
                 + "\ndescripcion=" + description + '}';
     }
     
-    
+   
 }
