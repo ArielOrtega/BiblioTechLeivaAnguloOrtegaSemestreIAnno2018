@@ -1,12 +1,15 @@
 package Interface;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -19,7 +22,7 @@ public class MainInterface extends Application {
         root.getChildren().add(menuBar());
         root.setTop(menuBar());
 
-        Scene scene = new Scene(root, 500, 450);
+        Scene scene = new Scene(root, 600, 600);
 
         primaryStage.setTitle("Bibliotech");
         primaryStage.setScene(scene);
@@ -29,14 +32,28 @@ public class MainInterface extends Application {
     }
 
     public VBox menuBar() {
+        
+        InterfaceModules im= new InterfaceModules();
+        HBox hbx_window= new HBox();
         VBox vbx_upperSide = new VBox();
+        
+        hbx_window.setAlignment(Pos.CENTER);
+        hbx_window.setSpacing(10);
 
         //Menu que despliega categorias principales
         Menu menuStudents = new Menu("Estudiantes");
         Menu menuMaterials = new Menu("Materiales");
         Menu menuLoans = new Menu("Prestamos");
         
+        //Menu Items
+        MenuItem addStudents= new MenuItem("Agregar Estudiante");
+        addStudents.setOnAction((event) -> {
+            hbx_window.getChildren().clear();
+            hbx_window.getChildren().addAll(im.studentRegister(), im.showTableView());
+        });
+                 
         MenuBar mainMenu = new MenuBar();
+        menuStudents.getItems().add(addStudents);
         mainMenu.getMenus().addAll(menuStudents,menuMaterials,menuLoans);
         
         //Despliegue del logo en el programa
@@ -47,7 +64,7 @@ public class MainInterface extends Application {
         imv_logo.setFitWidth(300);
         
         //vbox captura los nodos
-        vbx_upperSide.getChildren().addAll(imv_logo,mainMenu);
+        vbx_upperSide.getChildren().addAll(imv_logo,mainMenu, hbx_window);
 
         return vbx_upperSide;
     }
