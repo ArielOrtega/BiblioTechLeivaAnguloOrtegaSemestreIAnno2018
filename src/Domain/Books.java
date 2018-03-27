@@ -49,7 +49,7 @@ public class Books extends Material{
     public int sizeInBytes(){
         
         return super.getName().length() * 2 + super.getSignature().length() * 2 + super.getDescription().length() * 2
-                + 12 + this.autor.length() * 2 + this.genre.length() * 2 + this.language.length() * 2;
+                + 4 + this.autor.length() * 2 + this.genre.length() * 2 + this.language.length() * 2;
     }
     
 }
