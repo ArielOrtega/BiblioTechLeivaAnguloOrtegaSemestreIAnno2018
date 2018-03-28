@@ -9,6 +9,12 @@ public class AudioVisual extends Material{
         super(name, signature, availability, description);
         this.brand = brand;
     }
+    
+    //constructor vacio
+    public AudioVisual(){
+        super();
+        this.brand = "";
+    }
 
     public String getBrand() {
         return brand;
@@ -25,5 +31,8 @@ public class AudioVisual extends Material{
         return super.toString() + "\nAudioVisual{" + "marco=" + brand + '}';
     }
     
-    
+    public int sizeInBytes(){
+        return super.getName().length() * 2 + super.getSignature().length() * 2 + super.getDescription().length() * 2
+                + 4 + this.getBrand().length() * 2;
+    }
 }

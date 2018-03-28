@@ -14,6 +14,13 @@ public class Material {
         this.availability = availability;
         this.description = description;
     }
+    
+    public Material(){
+        this.name = "";
+        this.signature = "";
+        this.availability = 0;
+        this.description = "";
+    }
 
     public String getName() {
         return name;

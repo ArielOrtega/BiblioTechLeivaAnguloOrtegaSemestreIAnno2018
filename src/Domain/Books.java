@@ -13,7 +13,15 @@ public class Books extends Material{
         this.author = author;
         this.genre = genre;
         this.language = language;
-    } 
+    }
+    
+    //contructor vacio
+    public Books() {
+        super();
+        this.author = "";
+        this.genre = "";
+        this.language = "";
+    }
     
     public String getAutor() {
         return author;
@@ -50,5 +58,5 @@ public class Books extends Material{
         return super.getName().length() * 2 + super.getSignature().length() * 2 + super.getDescription().length() * 2
                 + 4 + this.author.length() * 2 + this.genre.length() * 2 + this.language.length() * 2;
     }
-    
+
 }

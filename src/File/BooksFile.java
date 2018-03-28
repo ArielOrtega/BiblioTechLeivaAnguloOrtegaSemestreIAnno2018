@@ -98,7 +98,7 @@ public class BooksFile {
             randomAccessFile.seek(position * this.regSize);
             
             //llevamos a cabo la lectura
-            Books bookTemp = new Books("","","","","",0,"");
+            Books bookTemp = new Books();
             bookTemp.setAutor(randomAccessFile.readUTF());
             bookTemp.setGenre(randomAccessFile.readUTF());
             bookTemp.setLanguage(randomAccessFile.readUTF());
