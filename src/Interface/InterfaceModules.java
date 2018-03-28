@@ -4,10 +4,16 @@ import Domain.Books;
 import Domain.Loan;
 import Domain.Student;
 import File.BooksFile;
+import File.StudentFile;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OptionalDataException;
 import java.time.LocalDate;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -29,6 +35,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -37,11 +44,13 @@ import javafx.util.Callback;
 import javafx.util.converter.LocalDateStringConverter;
 
 public class InterfaceModules {
-
-    ObservableList<Student> testRecords = FXCollections.observableArrayList();
+    
     static String genre, idiom;
     static int valueDelivery1, valueDelivery2, valueDelivery3;
     static LocalDate date1;
+    StudentFile sft= new StudentFile();
+    ObservableList<Student> observableArrayStudent= FXCollections.observableArrayList();
+    ArrayList<Student> arrayListStudent= new ArrayList<>();    
 
     public GridPane studentRegister() {
         GridPane gridpane = new GridPane();
@@ -60,11 +69,20 @@ public class InterfaceModules {
         cb_career.getItems().addAll("Informática", "Administración", "Turismo");
         cb_career.setPromptText("Carrera");
         cb_career.setEditable(false);
+        
+        cb_career.setOnAction((event) -> {
+            
+            if (tf_name.getText().length()>0 && tf_entryYear.getText().length()>0 && cb_career.getValue().length()>0) {
+                Student s = new Student(tf_name.getText(), tf_entryYear.getText(),
+                        cb_career.getValue(), "metodo", "metodo");
 
-        Button btn_add = new Button("Agregar");
-        btn_add.setOnAction((event) -> {
-            testRecords.add(new Student(tf_name.getText(), tf_entryYear.getText(),
-                    cb_career.getValue(), "metodo", "metodo"));
+                observableArrayStudent.add(s);
+                arrayListStudent.add(s);
+
+                tf_name.clear();
+                tf_entryYear.clear();
+            }
+            
         });
 
         gridpane.add(lbl_title, 0, 0);
@@ -73,7 +91,6 @@ public class InterfaceModules {
         gridpane.add(lbl_entryYear, 0, 5);
         gridpane.add(tf_entryYear, 0, 6);
         gridpane.add(cb_career, 0, 8);
-        gridpane.add(btn_add, 0, 10);
         gridpane.setVgap(5);
 
         return gridpane;
@@ -98,11 +115,28 @@ public class InterfaceModules {
         columnLoans.setCellValueFactory(new PropertyValueFactory("previousLoans"));
 
         table.getColumns().addAll(columnId, columnName, columnYear, columnCareer, columnLoans);
-        table.setItems(testRecords);
+        table.setItems(observableArrayStudent);
         table.setEditable(false);
+        
+        Button btn_addToFile= new Button("Añadir al archivo");
+        btn_addToFile.setOnAction((event) -> {
+            sft.writeFile(arrayListStudent);
+        });
+        
+        Button btn_showRecords= new Button("Ver Registros");
+        btn_showRecords.setOnAction((event) -> {
+            try {
+                table.setItems(sft.readFile());
+            } catch (FileNotFoundException | ClassNotFoundException | OptionalDataException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
+        HBox hbox_buttons= new HBox();
+        hbox_buttons.getChildren().addAll(btn_addToFile, btn_showRecords);
 
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(table);
+        vbox.getChildren().addAll(table, hbox_buttons);
 
         return vbox;
     }
