@@ -3,25 +3,24 @@ package Domain;
 
 
 public class Books extends Material{
-    private String autor;
+    private String author;
     private String genre;
     private String language;
     
     
-    public Books(String autor, String genre, String language, String name, String signature, int availability, String description) {
+    public Books(String name, String author, String signature, String genre, String language, int availability, String description) {
         super(name, signature, availability, description);
-        this.autor = autor;
+        this.author = author;
         this.genre = genre;
         this.language = language;
     } 
     
-
     public String getAutor() {
-        return autor;
+        return author;
     }
 
-    public void setAutor(String autor) {
-        this.autor = autor;
+    public void setAutor(String author) {
+        this.author = author;
     }
 
     public String getGenre() {
@@ -43,13 +42,13 @@ public class Books extends Material{
 
     @Override
     public String toString() {
-        return super.toString() + "\nLibros{" + "autor=" + autor + ", genero=" + genre + ", idioma=" + language + '}';
+        return super.toString() + "\nLibros{" + "autor=" + author + ", genero=" + genre + ", idioma=" + language + '}';
     }
 
     public int sizeInBytes(){
         
         return super.getName().length() * 2 + super.getSignature().length() * 2 + super.getDescription().length() * 2
-                + 4 + this.autor.length() * 2 + this.genre.length() * 2 + this.language.length() * 2;
+                + 4 + this.author.length() * 2 + this.genre.length() * 2 + this.language.length() * 2;
     }
     
 }

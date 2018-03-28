@@ -1,6 +1,8 @@
 package Interface;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -78,10 +80,14 @@ public class MainInterface extends Application {
         });
 
         MenuItem mim_enterView = new MenuItem("Mostrar");
-        mim_enterView.setOnAction((event) -> {
-            hbx_window.getChildren().clear();
+        mim_enterView.setOnAction((event) -> {            
+            try {
+                hbx_window.getChildren().clear();
             presentador.getChildren().clear();
-//            presentador.getChildren().addAll(im.acercade());
+                presentador.getChildren().addAll(interfaceM.viewMaterial());
+            } catch (IOException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });                              
 
         mnu_menuMaterials.getItems().addAll(mim_enterBooks, mim_enterAudiovisual, mim_enterView);
@@ -89,28 +95,21 @@ public class MainInterface extends Application {
         Menu mnu_menuLoans = new Menu("Prestamos");
         mnu_menuLoans.setMnemonicParsing(true);
 
-        MenuItem mim_bookLoans = new MenuItem("Libros");
-        mim_bookLoans.setOnAction((event) -> {
+        MenuItem mim_performLoan = new MenuItem("Realizar Prestamo");
+        mim_performLoan.setOnAction((event) -> {
             hbx_window.getChildren().clear();
             presentador.getChildren().clear();
-//            presentador.getChildren().addAll(im.acercade());
-        });
-
-        MenuItem mim_AudioVisualLoan = new MenuItem("Audiovisual");
-        mim_AudioVisualLoan.setOnAction((event) -> {
-            hbx_window.getChildren().clear();
-            presentador.getChildren().clear();
-//            presentador.getChildren().addAll(im.acercade());
+            presentador.getChildren().addAll(interfaceM.enterBookLoan());
         });
 
         MenuItem mim_loansView = new MenuItem("Mostrar");
         mim_loansView.setOnAction((event) -> {
             hbx_window.getChildren().clear();
             presentador.getChildren().clear();
-//            presentador.getChildren().addAll(im.acercade());
+            presentador.getChildren().addAll(interfaceM.viewLoans());
         });
       
-        mnu_menuLoans.getItems().addAll(mim_bookLoans, mim_AudioVisualLoan, mim_loansView);
+        mnu_menuLoans.getItems().addAll(mim_performLoan, mim_loansView);
        
         MenuBar mnb_mainMenu = new MenuBar();
         mnb_mainMenu.getMenus().addAll(mnu_menuStudents, mnu_menuMaterials, mnu_menuLoans);

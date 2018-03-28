@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -148,5 +150,21 @@ public class BooksFile {
             }
         }//end for
         return booksArray;
+    }
+    
+    public ObservableList<Books> getBooks() throws IOException {
+        ArrayList<Books> bookArray = new ArrayList<Books>();
+
+        for (int i = 0; i < this.regsQuantity; i++) {
+            Books cTemp = this.getBook(i);
+
+            if (cTemp != null) {
+                bookArray.add(cTemp);
+            }
+   
+        }//end for       
+        ObservableList<Books> listCar = FXCollections.observableArrayList(bookArray);
+        return listCar;
+        
     }
 }

@@ -14,8 +14,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import junit.Test;
-import static org.junit.Assert.*;
+
 
 /**
  *
@@ -79,9 +78,9 @@ public class DomainTest {
         }
     }
     
-    @Test
-    public void readPosition() throws IOException{
-        Books bookTemp = booksFile.getBook(0);
-        System.out.println(bookTemp.toString());
-    }
+//    @Test
+//    public void readPosition() throws IOException{
+//        Books bookTemp = booksFile.getBook(0);
+//        System.out.println(bookTemp.toString());
+//    }
 }
