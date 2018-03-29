@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="BiblioTechAnguloLeivaOrtegaSemestreIAnno2018.jar" size="89751" download="eager" />
+    <jar href="BiblioTechAnguloLeivaOrtegaSemestreIAnno2018.jar" size="96899" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="BiblioTechAnguloLeivaOrtegaSemestreIAnno2018" >
     <param name="requiredFXVersion" value="8.0+"/>

@@ -35,19 +35,18 @@ public class MainInterface extends Application {
         primaryStage.setMinWidth(500);
         primaryStage.setMinHeight(450);
         primaryStage.show();
-        
+
     }//fin start
 
     public VBox menuBar() {
-                
-        HBox hbx_window= new HBox();
+
+        HBox hbx_window = new HBox();
         VBox vbx_upperSide = new VBox();
-      
+
         hbx_window.setAlignment(Pos.CENTER);
         hbx_window.setSpacing(10);
 
         Scene scene = new Scene(new VBox(), 1000, 650);
-
 
         //Menu que despliega categorias principales
         Menu mnu_menuStudents = new Menu("Estudiantes");
@@ -59,7 +58,7 @@ public class MainInterface extends Application {
             hbx_window.getChildren().clear();
             hbx_window.getChildren().addAll(interfaceM.studentRegister(), interfaceM.showTableView());
         });
-        
+
         mnu_menuStudents.getItems().addAll(mim_enterStudent);
 
         Menu mnu_menuMaterials = new Menu("Materiales");
@@ -80,15 +79,15 @@ public class MainInterface extends Application {
         });
 
         MenuItem mim_enterView = new MenuItem("Mostrar");
-        mim_enterView.setOnAction((event) -> {            
+        mim_enterView.setOnAction((event) -> {
             try {
                 hbx_window.getChildren().clear();
-            presentador.getChildren().clear();
+                presentador.getChildren().clear();
                 presentador.getChildren().addAll(interfaceM.viewMaterial());
             } catch (IOException ex) {
                 Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
             }
-        });                              
+        });
 
         mnu_menuMaterials.getItems().addAll(mim_enterBooks, mim_enterAudiovisual, mim_enterView);
 
@@ -97,20 +96,43 @@ public class MainInterface extends Application {
 
         MenuItem mim_performLoan = new MenuItem("Realizar Prestamo");
         mim_performLoan.setOnAction((event) -> {
-            hbx_window.getChildren().clear();
-            presentador.getChildren().clear();
-            presentador.getChildren().addAll(interfaceM.enterBookLoan());
+            try {
+                hbx_window.getChildren().clear();
+                presentador.getChildren().clear();
+                presentador.getChildren().addAll(interfaceM.enterLoan());
+            } catch (IOException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+
+        MenuItem mim_deleteLoan = new MenuItem("Eliminar Prestamo");
+        mim_deleteLoan.setOnAction((event) -> {
+            
+                
+            try {
+                hbx_window.getChildren().clear();
+                presentador.getChildren().clear();
+                presentador.getChildren().addAll(interfaceM.deleteLoans());
+            } catch (IOException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         });
 
         MenuItem mim_loansView = new MenuItem("Mostrar");
         mim_loansView.setOnAction((event) -> {
-            hbx_window.getChildren().clear();
-            presentador.getChildren().clear();
-            presentador.getChildren().addAll(interfaceM.viewLoans());
+
+            try {
+                hbx_window.getChildren().clear();
+                presentador.getChildren().clear();
+                presentador.getChildren().addAll(interfaceM.viewLoans());
+            } catch (IOException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
-      
-        mnu_menuLoans.getItems().addAll(mim_performLoan, mim_loansView);
-       
+
+        mnu_menuLoans.getItems().addAll(mim_performLoan, mim_deleteLoan, mim_loansView);
+
         MenuBar mnb_mainMenu = new MenuBar();
         mnb_mainMenu.getMenus().addAll(mnu_menuStudents, mnu_menuMaterials, mnu_menuLoans);
 
@@ -120,16 +142,17 @@ public class MainInterface extends Application {
         imv_logo.setImage(img_logo);
         imv_logo.setFitHeight(170);
         imv_logo.setFitWidth(300);
-        
+
         presentador.setPrefSize(scene.getWidth(), scene.getWidth());
 
         vbx_upperSide.getChildren().addAll(imv_logo, mnb_mainMenu, hbx_window, presentador);
 
         return vbx_upperSide;
     }
-   
+
     public static void main(String[] args) throws IOException {
-        launch(args);        
+        launch(args);
+
     }
-    
+
 }

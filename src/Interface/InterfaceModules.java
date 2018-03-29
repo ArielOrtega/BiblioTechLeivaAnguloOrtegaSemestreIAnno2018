@@ -2,17 +2,13 @@ package Interface;
 
 import Domain.Books;
 import Domain.Loan;
-import Domain.LogicalMethods;
 import Domain.Student;
 import File.BooksFile;
-import File.StudentFile;
+import File.LoanFile;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OptionalDataException;
 import java.time.LocalDate;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -24,19 +20,22 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.chart.BubbleChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -45,14 +44,17 @@ import javafx.util.Callback;
 import javafx.util.converter.LocalDateStringConverter;
 
 public class InterfaceModules {
-    
+
+    ObservableList<Student> testRecords = FXCollections.observableArrayList();
     static String genre, idiom;
     static int valueDelivery1, valueDelivery2, valueDelivery3;
     static LocalDate date1;
-    StudentFile sft= new StudentFile();
-    ObservableList<Student> observableArrayStudent= FXCollections.observableArrayList();
-    ArrayList<Student> arrayListStudent= new ArrayList<>();   
-    LogicalMethods methods= new LogicalMethods();
+    static Label lbl_choise, lbl_signature, lbl_deliveryDay, lbl_warning, lbl_success, lbl_idStudent, lbl_info;
+    static RadioButton rdb_choiceBook, rdb_choiceAV;
+    static TextField tfd_signatureB, tfd_idStudent, tfd_signatureAV;
+    static DatePicker dpk_delivaeyDay;
+    static Button btn_enterLoan, btn_checkStudent, btn_exit;
+    static Loan loan1;
 
     public GridPane studentRegister() {
         GridPane gridpane = new GridPane();
@@ -71,20 +73,11 @@ public class InterfaceModules {
         cb_career.getItems().addAll("Informática", "Administración", "Turismo");
         cb_career.setPromptText("Carrera");
         cb_career.setEditable(false);
-        
-        cb_career.setOnAction((event) -> {
-            
-            if (tf_name.getText().length()>0 && tf_entryYear.getText().length()>0 && cb_career.getValue().length()>0) {
-                Student s = new Student(tf_name.getText(), tf_entryYear.getText(),
-                        cb_career.getValue(), "metodo", methods.getStudentId(cb_career.getValue(), tf_entryYear.getText(), arrayListStudent.size()));
 
-                observableArrayStudent.add(s);
-                arrayListStudent.add(s);
-
-                tf_name.clear();
-                tf_entryYear.clear();
-            }
-            
+        Button btn_add = new Button("Agregar");
+        btn_add.setOnAction((event) -> {
+            testRecords.add(new Student(tf_name.getText(), tf_entryYear.getText(),
+                    cb_career.getValue(), "metodo", "metodo"));
         });
 
         gridpane.add(lbl_title, 0, 0);
@@ -93,6 +86,7 @@ public class InterfaceModules {
         gridpane.add(lbl_entryYear, 0, 5);
         gridpane.add(tf_entryYear, 0, 6);
         gridpane.add(cb_career, 0, 8);
+        gridpane.add(btn_add, 0, 10);
         gridpane.setVgap(5);
 
         return gridpane;
@@ -117,28 +111,11 @@ public class InterfaceModules {
         columnLoans.setCellValueFactory(new PropertyValueFactory("previousLoans"));
 
         table.getColumns().addAll(columnId, columnName, columnYear, columnCareer, columnLoans);
-        table.setItems(observableArrayStudent);
+        table.setItems(testRecords);
         table.setEditable(false);
-        
-        Button btn_addToFile= new Button("Añadir al archivo");
-        btn_addToFile.setOnAction((event) -> {
-            sft.writeFile(arrayListStudent);
-        });
-        
-        Button btn_showRecords= new Button("Ver Registros");
-        btn_showRecords.setOnAction((event) -> {
-            try {
-                table.setItems(sft.readFile());
-            } catch (FileNotFoundException | ClassNotFoundException | OptionalDataException ex) {
-                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        
-        HBox hbox_buttons= new HBox();
-        hbox_buttons.getChildren().addAll(btn_addToFile, btn_showRecords);
 
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(table, hbox_buttons);
+        vbox.getChildren().addAll(table);
 
         return vbox;
     }
@@ -170,13 +147,13 @@ public class InterfaceModules {
         TextField tfd_name = new TextField();
         gpn_enterBooks.add(tfd_name, 1, 0);
 
-        Label lbl_signature = new Label("Signatura");
-        lbl_signature.setTextFill(Color.BLACK);
-        lbl_signature.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-        gpn_enterBooks.add(lbl_signature, 3, 0);
+        Label lbl_signatureB = new Label("Signatura");
+        lbl_signatureB.setTextFill(Color.BLACK);
+        lbl_signatureB.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterBooks.add(lbl_signatureB, 3, 0);
 
-        TextField tfd_signature = new TextField();
-        gpn_enterBooks.add(tfd_signature, 4, 0);
+        TextField tfd_signatureB = new TextField();
+        gpn_enterBooks.add(tfd_signatureB, 4, 0);
 
         Label lbl_author = new Label("Autor");
         lbl_author.setTextFill(Color.BLACK);
@@ -266,13 +243,13 @@ public class InterfaceModules {
         TextField tfd_kind = new TextField();
         gpn_enterAudioV.add(tfd_kind, 1, 0);
 
-        Label lbl_signature = new Label("Signatura:");
-        lbl_signature.setTextFill(Color.BLACK);
-        lbl_signature.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-        gpn_enterAudioV.add(lbl_signature, 3, 0);
+        Label lbl_signatureAV = new Label("Signatura:");
+        lbl_signatureAV.setTextFill(Color.BLACK);
+        lbl_signatureAV.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterAudioV.add(lbl_signatureAV, 3, 0);
 
-        TextField tfd_signature = new TextField();
-        gpn_enterAudioV.add(tfd_signature, 4, 0);
+        TextField tfd_signatureAV = new TextField();
+        gpn_enterAudioV.add(tfd_signatureAV, 4, 0);
 
         Label lbl_brand = new Label("Marca:");
         lbl_brand.setTextFill(Color.BLACK);
@@ -303,7 +280,7 @@ public class InterfaceModules {
         gpn_enterAudioV.add(btn_enterAudioV, 4, 6);
 
         return gpn_enterAudioV;
-    }
+    }//end method
 
     public static GridPane viewMaterial() throws IOException {
 
@@ -382,7 +359,7 @@ public class InterfaceModules {
 
         Button btn_viewBooks = new Button("Ver libros");
         btn_viewBooks.setOnAction((event) -> {
-//            tvw_viewAudiovisual.setVisible(false);
+            tvw_viewAudiovisual.setVisible(false);
             tvw_viewBooks.setVisible(true);
         });
         gpn_viewMaterial.add(btn_viewBooks, 0, 0);
@@ -390,7 +367,7 @@ public class InterfaceModules {
         Button btn_viewAudiov = new Button("Ver Audiovisual");
         btn_viewAudiov.setOnAction((event) -> {
             tvw_viewBooks.setVisible(false);
-//            tvw_viewAudiovisual.setVisible(true);            
+            tvw_viewAudiovisual.setVisible(true);
         });
         gpn_viewMaterial.add(btn_viewAudiov, 1, 0);
 
@@ -398,57 +375,87 @@ public class InterfaceModules {
 
     }
 
-    public static GridPane enterBookLoan() {
+    public static GridPane enterLoan() throws IOException {
 
-        GridPane gpn_entBookL = new GridPane();
-        gpn_entBookL.getColumnConstraints().add(new ColumnConstraints(200));
-        gpn_entBookL.getColumnConstraints().add(new ColumnConstraints(250));
-        gpn_entBookL.getColumnConstraints().add(new ColumnConstraints(150));
-        gpn_entBookL.getColumnConstraints().add(new ColumnConstraints(200));
-        gpn_entBookL.getColumnConstraints().add(new ColumnConstraints(250));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.getRowConstraints().add(new RowConstraints(60));
-        gpn_entBookL.setAlignment(Pos.CENTER);
-        gpn_entBookL.setPadding(new Insets(20));
-        gpn_entBookL.setPrefSize(300, 300);
+        LoanFile lFile = new LoanFile(new File("./Loans.dat"));
 
-        Label lbl_idStudent = new Label("Carné del Estudiante");
+        GridPane gpn_enterLoan = new GridPane();
+
+        //Acomodar las columnas y las filas en el tamaño que sea necesario
+        gpn_enterLoan.getColumnConstraints().add(new ColumnConstraints(200));
+        gpn_enterLoan.getColumnConstraints().add(new ColumnConstraints(250));
+        gpn_enterLoan.getColumnConstraints().add(new ColumnConstraints(150));
+        gpn_enterLoan.getColumnConstraints().add(new ColumnConstraints(200));
+        gpn_enterLoan.getColumnConstraints().add(new ColumnConstraints(250));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_enterLoan.setAlignment(Pos.CENTER);
+        gpn_enterLoan.setPadding(new Insets(20));
+        gpn_enterLoan.setPrefSize(300, 300);
+
+        lbl_idStudent = new Label("Carné del Estudiante");
         lbl_idStudent.setTextFill(Color.BLACK);
         lbl_idStudent.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-        gpn_entBookL.add(lbl_idStudent, 0, 0);
+        gpn_enterLoan.add(lbl_idStudent, 0, 3);
 
-        TextField tfd_idStudent = new TextField();
-        gpn_entBookL.add(tfd_idStudent, 1, 0);
+        tfd_idStudent = new TextField();
+        gpn_enterLoan.add(tfd_idStudent, 1, 3);
 
-        Label lbl_signature = new Label("Signatura del Libro");
+        btn_checkStudent = new Button("Ingresar");
+        btn_checkStudent.setOnAction((event) -> {
+
+            String student = tfd_idStudent.getText().replaceAll(" ", "");
+            lbl_idStudent.setVisible(false);
+            tfd_idStudent.setVisible(false);
+            btn_checkStudent.setVisible(false);
+            lbl_choise.setVisible(true);
+            rdb_choiceAV.setVisible(true);
+            rdb_choiceBook.setVisible(true);
+            
+
+        });//end Button
+        gpn_enterLoan.add(btn_checkStudent, 3, 3);
+
+        lbl_choise = new Label("Seleccione una opción");
+        lbl_choise.setVisible(false);
+        lbl_choise.setTextFill(Color.BLACK);
+        lbl_choise.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterLoan.add(lbl_choise, 0, 0);
+
+        lbl_signature = new Label("Signatura del Artículo");
+        lbl_signature.setVisible(false);
         lbl_signature.setTextFill(Color.BLACK);
         lbl_signature.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-        gpn_entBookL.add(lbl_signature, 3, 0);
+        gpn_enterLoan.add(lbl_signature, 0, 2);
 
-        TextField tfd_signature = new TextField();
-        gpn_entBookL.add(tfd_signature, 4, 0);
+        tfd_signatureB = new TextField("ISBN-");
+        tfd_signatureB.setVisible(false);
+//        tfd_signatureAV.setText("ISBN");
+        gpn_enterLoan.add(tfd_signatureB, 1, 2);
 
-        Label lbl_deliveryDay = new Label("Día de Entrega");
+        lbl_deliveryDay = new Label("Día de Entrega");
+        lbl_deliveryDay.setVisible(false);
         lbl_deliveryDay.setTextFill(Color.BLACK);
         lbl_deliveryDay.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-        gpn_entBookL.add(lbl_deliveryDay, 0, 2);
+        gpn_enterLoan.add(lbl_deliveryDay, 3, 2);
 
         DatePicker dpk_loanDay = new DatePicker(LocalDate.now());
         dpk_loanDay.setEditable(false);
 
-        DatePicker dpk_delivaeyDay = new DatePicker();
+        dpk_delivaeyDay = new DatePicker();
         dpk_delivaeyDay.setPrefWidth(250);
         dpk_delivaeyDay.setEditable(false);
+        dpk_delivaeyDay.setVisible(false);
         dpk_delivaeyDay.setShowWeekNumbers(true);
-        dpk_delivaeyDay.setConverter(new LocalDateStringConverter(FormatStyle.FULL));
+        dpk_delivaeyDay.setConverter(new LocalDateStringConverter(FormatStyle.FULL)); //Fecha en un formato String
+
         dpk_delivaeyDay.setOnAction(new EventHandler() {
             public void handle(Event t) {
-
                 date1 = dpk_delivaeyDay.getValue();
                 valueDelivery1 = date1.getDayOfMonth();
                 valueDelivery2 = date1.getMonthValue();
@@ -456,6 +463,8 @@ public class InterfaceModules {
                 dpk_delivaeyDay.setDisable(false);
             }
         });
+
+        //Metodo para deshabilitar los dias anteriores al actual
         final Callback<DatePicker, DateCell> dayCellFactory
                 = new Callback<DatePicker, DateCell>() {
             @Override
@@ -475,17 +484,245 @@ public class InterfaceModules {
         };
         dpk_delivaeyDay.setDayCellFactory(dayCellFactory);
         dpk_delivaeyDay.setValue(dpk_loanDay.getValue().plusDays(0));
-        gpn_entBookL.add(dpk_delivaeyDay, 1, 2);
-        
-        Button btn_enterLoan = new Button("Ingresar Prestamo");
-        gpn_entBookL.add(btn_enterLoan, 4, 4);
-        
-        
+        gpn_enterLoan.add(dpk_delivaeyDay, 4, 2);
 
-        return gpn_entBookL;
+        lbl_warning = new Label("Prestamo no registrado");
+        lbl_warning.setVisible(false);
+        lbl_warning.setTextFill(Color.RED);
+        lbl_warning.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterLoan.add(lbl_warning, 3, 4, 4, 6);
+
+        lbl_success = new Label("Se registro el prestamo");
+        lbl_success.setVisible(false);
+        lbl_success.setTextFill(Color.GREEN);
+        lbl_success.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterLoan.add(lbl_success, 3, 4, 4, 6);
+
+        ToggleGroup group = new ToggleGroup();
+
+        rdb_choiceBook = new RadioButton("Libro");
+        rdb_choiceBook.setVisible(false);        
+        rdb_choiceBook.setToggleGroup(group);
+
+        rdb_choiceBook.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+
+                tfd_signatureAV.setVisible(false);
+                lbl_signature.setVisible(true);
+                tfd_signatureB.setVisible(true);
+                lbl_deliveryDay.setVisible(true);
+                dpk_delivaeyDay.setVisible(true);
+                btn_enterLoan.setVisible(true);
+                btn_exit.setVisible(true);
+                tfd_signatureB.setText("ISBN-");
+                dpk_delivaeyDay.setValue(LocalDate.now());
+
+            }
+        });
+        gpn_enterLoan.add(rdb_choiceBook, 0, 1);
+
+        tfd_signatureAV = new TextField();
+        tfd_signatureAV.setVisible(false);
+        //metodo para establecer un tamaño maximo de ingreso de valores en un TextField
+        tfd_signatureAV.lengthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable,
+                    Number beforeValue, Number actualValue) {
+                if (actualValue.intValue() > beforeValue.intValue()) {
+                    // Revisa que la longitud del texto no sea mayor a la variable definida.
+                    if (tfd_signatureAV.getText().length() >= 5) {
+                        tfd_signatureAV.setText(tfd_signatureAV.getText().substring(0, 5));
+                    }
+                }
+            }
+        });
+        gpn_enterLoan.add(tfd_signatureAV, 1, 2);
+
+        rdb_choiceAV = new RadioButton("Audiovisual");
+        rdb_choiceAV.setVisible(false);
+        rdb_choiceAV.setToggleGroup(group);
+        rdb_choiceAV.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+
+                tfd_signatureB.setVisible(false);
+                lbl_signature.setVisible(true);
+                tfd_signatureAV.setVisible(true);
+                lbl_deliveryDay.setVisible(true);
+                dpk_delivaeyDay.setVisible(true);
+                btn_enterLoan.setVisible(true);
+                btn_exit.setVisible(true);
+                tfd_signatureAV.setText("");
+                dpk_delivaeyDay.setValue(LocalDate.now());
+
+            }
+        });
+        gpn_enterLoan.add(rdb_choiceAV, 1, 1);
+        
+        lbl_info = new Label("Salir para realizar otro prestamo");
+        lbl_info.setVisible(false);
+        gpn_enterLoan.add(lbl_info, 2, 6, 3, 6);
+
+        btn_enterLoan = new Button("Ingresar Prestamo");
+        btn_enterLoan.setVisible(false);
+        btn_enterLoan.setOnAction((event) -> {
+            String idStudent = tfd_idStudent.getText().replaceAll(" ", "");
+            String signatureB = tfd_signatureB.getText().replaceAll(" ", "");
+            String signatureAV = tfd_signatureAV.getText().replaceAll(" ", "");
+            String loanDay = "" + LocalDate.now();
+            String deliveryDay = valueDelivery3 + "-" + valueDelivery1 + "-" + valueDelivery2;
+            String kind = "";
+
+            if (rdb_choiceAV.isSelected()) {
+                kind = "Audiovisual";
+                loan1 = new Loan(idStudent, signatureAV, loanDay, deliveryDay, kind);
+            } else {
+                kind = "Libro";
+                loan1 = new Loan(idStudent, signatureB, loanDay, deliveryDay, kind);
+            }
+
+            try {
+
+                lFile.addEndRecord(loan1);
+                lFile.close();
+               
+                tfd_signatureB.setDisable(true); 
+                tfd_signatureAV.setDisable(true);
+                dpk_delivaeyDay.setDisable(true);                
+                rdb_choiceBook.setDisable(true);
+                rdb_choiceAV.setDisable(true);
+                btn_enterLoan.setDisable(true);
+                lbl_info.setVisible(true);
+                
+                //Se limpian los valores anteriormente ingresados 
+                tfd_idStudent.setText("");
+                tfd_signatureB.setText("");
+                dpk_delivaeyDay.setValue(LocalDate.now()); //Se asigna el valor por defecto del DatePicker
+
+            } catch (IOException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        gpn_enterLoan.add(btn_enterLoan, 4, 4);
+
+        btn_exit = new Button("Salir");
+        btn_exit.setVisible(false);
+        btn_exit.setOnAction((event) -> {
+            lbl_signature.setVisible(false);
+            tfd_signatureB.setVisible(false);
+            lbl_deliveryDay.setVisible(false);
+            dpk_delivaeyDay.setVisible(false);
+            lbl_choise.setVisible(false);
+            rdb_choiceBook.setVisible(false);
+            rdb_choiceAV.setVisible(false);
+            btn_enterLoan.setVisible(false);
+            lbl_warning.setVisible(false);
+            lbl_success.setVisible(false);
+            lbl_info.setVisible(false);
+            btn_exit.setVisible(false);
+            tfd_signatureAV.setVisible(false);
+            lbl_idStudent.setVisible(true);
+            tfd_idStudent.setVisible(true);
+            btn_checkStudent.setVisible(true);
+        });
+        gpn_enterLoan.add(btn_exit, 4, 6);
+
+        return gpn_enterLoan;
+
+    }//end method
+
+    public static GridPane deleteLoans() throws IOException {
+
+        LoanFile lfile = new LoanFile(new File("./Loans.dat"));
+
+        GridPane gpn_deleteLoan = new GridPane();
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(200));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(250));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(150));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(200));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(250));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
+        gpn_deleteLoan.setAlignment(Pos.CENTER);
+        gpn_deleteLoan.setPadding(new Insets(20));
+        gpn_deleteLoan.setPrefSize(300, 300);
+
+        Label lbl_signatLoan = new Label("Signatura");
+        gpn_deleteLoan.add(lbl_signatLoan, 0, 0);
+
+        TextField tfd_signatLoan = new TextField();
+//        tfd_signatLoan.setOnKeyPressed((event) -> {
+//           
+//            String signature = tfd_signatLoan.getText();
+//            
+//            
+//        });
+        gpn_deleteLoan.add(tfd_signatLoan, 1, 0);
+
+        Label lbl_warningL = new Label("Prestamo no resgistrado");
+        lbl_warningL.setVisible(false);
+        lbl_warningL.setTextFill(Color.RED);
+        gpn_deleteLoan.add(lbl_warningL, 4, 0);
+        
+        Label lbl_successL = new Label("Prestamo registrado");
+        lbl_successL.setTextFill(Color.RED);
+        lbl_successL.setVisible(false);
+        gpn_deleteLoan.add(lbl_successL, 4, 0);
+
+        Button btn_search = new Button("Buscar");
+        btn_search.setOnAction((event) -> {
+
+            String signature = tfd_signatLoan.getText();
+
+            try {
+                if (lfile.searchLoan(signature) == -1) {
+                    lbl_warningL.setVisible(true);
+                } else {
+                    lfile.deleteLoan(signature);
+                    lfile.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        });
+        gpn_deleteLoan.add(btn_search, 3, 0);
+
+//        TableView<Loan> tvw_deleteLoan = new TableView();      
+//
+//        TableColumn idColumn = new TableColumn("Carné");
+//        idColumn.setMinWidth(150);
+//        idColumn.setCellValueFactory(new PropertyValueFactory<>("studentId"));
+//
+//        TableColumn signatureColumn = new TableColumn("Signatura");
+//        signatureColumn.setMinWidth(150);
+//        signatureColumn.setCellValueFactory(new PropertyValueFactory<>("signature"));
+//
+//        TableColumn loanDayColumn = new TableColumn("Día de prestamo");
+//        loanDayColumn.setMinWidth(150);
+//        loanDayColumn.setCellValueFactory(new PropertyValueFactory<>("loanDay"));
+//
+//        TableColumn deliveryColumn = new TableColumn("Dia de devolución");
+//        deliveryColumn.setMinWidth(150);
+//        deliveryColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryDay"));
+//
+//        tvw_deleteLoan.getColumns().addAll(idColumn, signatureColumn, loanDayColumn, deliveryColumn);
+//        tvw_deleteLoan.setPrefSize(600, 500);
+//        tvw_deleteLoan.setTableMenuButtonVisible(true);
+//        gpn_deleteLoan.add(tvw_deleteLoan, 0, 0);
+        return gpn_deleteLoan;
+
     }
 
-    public static GridPane viewLoans() {
+    public static GridPane viewLoans() throws IOException {
 
         GridPane gpn_viewloans = new GridPane();
         gpn_viewloans.setAlignment(Pos.TOP_CENTER);
@@ -494,7 +731,10 @@ public class InterfaceModules {
 
         TableView<Loan> tvw_viewLoan = new TableView();
 
-//      Falta el observableList        
+        LoanFile lfile = new LoanFile(new File("./Loans.dat"));
+        ObservableList<Loan> data = lfile.getAllLoans();
+        tvw_viewLoan.setItems(data);
+
         TableColumn idColumn = new TableColumn("Carné");
         idColumn.setMinWidth(150);
         idColumn.setCellValueFactory(new PropertyValueFactory<>("studentId"));
@@ -511,7 +751,11 @@ public class InterfaceModules {
         deliveryColumn.setMinWidth(150);
         deliveryColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryDay"));
 
-        tvw_viewLoan.getColumns().addAll(idColumn, signatureColumn, loanDayColumn, deliveryColumn);
+        TableColumn kindColumn = new TableColumn("Artículo");
+        kindColumn.setMinWidth(150);
+        kindColumn.setCellValueFactory(new PropertyValueFactory<>("kind"));
+
+        tvw_viewLoan.getColumns().addAll(idColumn, signatureColumn, loanDayColumn, deliveryColumn, kindColumn);
         tvw_viewLoan.setPrefSize(750, 500);
         tvw_viewLoan.setTableMenuButtonVisible(true);
         gpn_viewloans.add(tvw_viewLoan, 0, 0);
