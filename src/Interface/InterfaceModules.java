@@ -2,6 +2,7 @@ package Interface;
 
 import Domain.Books;
 import Domain.Loan;
+import Domain.LogicalMethods;
 import Domain.Student;
 import File.BooksFile;
 import File.StudentFile;
@@ -50,7 +51,8 @@ public class InterfaceModules {
     static LocalDate date1;
     StudentFile sft= new StudentFile();
     ObservableList<Student> observableArrayStudent= FXCollections.observableArrayList();
-    ArrayList<Student> arrayListStudent= new ArrayList<>();    
+    ArrayList<Student> arrayListStudent= new ArrayList<>();   
+    LogicalMethods methods= new LogicalMethods();
 
     public GridPane studentRegister() {
         GridPane gridpane = new GridPane();
@@ -74,7 +76,7 @@ public class InterfaceModules {
             
             if (tf_name.getText().length()>0 && tf_entryYear.getText().length()>0 && cb_career.getValue().length()>0) {
                 Student s = new Student(tf_name.getText(), tf_entryYear.getText(),
-                        cb_career.getValue(), "metodo", "metodo");
+                        cb_career.getValue(), "metodo", methods.getStudentId(cb_career.getValue(), tf_entryYear.getText(), arrayListStudent.size()));
 
                 observableArrayStudent.add(s);
                 arrayListStudent.add(s);
