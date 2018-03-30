@@ -1,10 +1,13 @@
 package Interface;
 
+import Domain.AudioVisual;
 import Domain.Books;
 import Domain.Loan;
 import Domain.Student;
+import File.AudioVisualFile;
 import File.BooksFile;
 import File.LoanFile;
+import java.awt.font.TextAttribute;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -55,6 +58,7 @@ public class InterfaceModules {
     static DatePicker dpk_delivaeyDay;
     static Button btn_enterLoan, btn_checkStudent, btn_exit;
     static Loan loan1;
+    static AudioVisualFile avf;
 
     public GridPane studentRegister() {
         GridPane gridpane = new GridPane();
@@ -122,9 +126,11 @@ public class InterfaceModules {
 
     public static GridPane enterBooks() {
 
+        //creacion del gridpane con sus caracteristicas
         GridPane gpn_enterBooks = new GridPane();
         gpn_enterBooks.setPadding(new Insets(20));
         gpn_enterBooks.setPrefSize(300, 300);
+        //se define ancho de las columnas y filas
         gpn_enterBooks.getColumnConstraints().add(new ColumnConstraints(200));
         gpn_enterBooks.getColumnConstraints().add(new ColumnConstraints(250));
         gpn_enterBooks.getColumnConstraints().add(new ColumnConstraints(150));
@@ -177,7 +183,7 @@ public class InterfaceModules {
         cbx_genre.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String t, String t1) {
-                genre = t1;
+                cbx_genre.setValue(t1);
             }
         });
         gpn_enterBooks.add(cbx_genre, 4, 2);
@@ -195,7 +201,7 @@ public class InterfaceModules {
         cbx_idiom.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String t, String t1) {
-                genre = t1;
+                cbx_idiom.setValue(t1);
             }
         });
         gpn_enterBooks.add(cbx_idiom, 1, 4);
@@ -210,6 +216,44 @@ public class InterfaceModules {
         gpn_enterBooks.add(txa_description, 4, 4);
 
         Button btn_enterBook = new Button("Ingresar Libro");
+        btn_enterBook.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                
+                genre = cbx_genre.getValue().toString();
+                idiom = cbx_idiom.getValue().toString();
+                try {
+                    
+                    BooksFile bfile = new BooksFile(new File("./Books.dat"));
+                    
+                    Books book1 = new Books(tfd_name.getText(),tfd_author.getText(),tfd_signatureB.getText(), genre, idiom, 1, txa_description.getText());
+
+                    Label lbl_success = new Label("¡Libro ingresado con exito!");
+                    lbl_success.setTextFill(Color.GREEN);
+                    lbl_success.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+                    lbl_success.setVisible(true);
+                        gpn_enterBooks.add(lbl_success, 3, 7, 4, 4);
+
+                    Label lbl_error = new Label("Llene todos los datos");
+                    lbl_error.setVisible(false);
+                        gpn_enterBooks.add(lbl_error, 3, 7, 4, 4);
+                    
+                    bfile.addEndRecord(book1);
+                    bfile.close();
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, "Error insertando libro", ex);
+                }
+
+                tfd_name.setText("");
+                tfd_author.setText("");
+                tfd_signatureB.setText("");
+                txa_description.setText("");
+                cbx_genre.setPromptText("");
+                cbx_idiom.setPromptText("");
+            }
+        });
         gpn_enterBooks.add(btn_enterBook, 4, 6);
 
         return gpn_enterBooks;
@@ -277,6 +321,41 @@ public class InterfaceModules {
         gpn_enterAudioV.add(txa_description, 1, 4);
 
         Button btn_enterAudioV = new Button("Ingresar Artículo");
+        btn_enterAudioV.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    
+                    AudioVisualFile afile = new AudioVisualFile(new File("./AudioVisual.dat"));
+                    
+                    AudioVisual audioVisual = new AudioVisual(tfd_brand.getText(), tfd_model.getText(), tfd_signatureAV.getText(), 1, txa_description.getText());
+                    
+                   
+                    Label lbl_success = new Label("¡AudioVisual ingresado con exito!");
+                    lbl_success.setTextFill(Color.GREEN);
+                    lbl_success.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+                    lbl_success.setVisible(true);
+                        gpn_enterAudioV.add(lbl_success, 3, 7, 4, 4);
+
+                    Label lbl_error = new Label("Llene todos los datos");
+                    lbl_error.setVisible(false);
+                        gpn_enterAudioV.add(lbl_error, 3, 7, 4, 4);
+                    
+                    afile.addEndRecord(audioVisual);
+                    afile.close();
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, "Error insertando libro", ex);
+                }
+
+                tfd_kind.setText("");
+                tfd_model.setText("");
+                tfd_signatureAV.setText("");
+                txa_description.setText("");
+                tfd_brand.setPromptText("");
+            }
+        });
         gpn_enterAudioV.add(btn_enterAudioV, 4, 6);
 
         return gpn_enterAudioV;
@@ -284,15 +363,25 @@ public class InterfaceModules {
 
     public static GridPane viewMaterial() throws IOException {
 
+        //declaracion del gridpane y sus caracteristicas
         GridPane gpn_viewMaterial = new GridPane();
         gpn_viewMaterial.setAlignment(Pos.TOP_CENTER);
         gpn_viewMaterial.setPadding(new Insets(20));
         gpn_viewMaterial.setPrefSize(700, 800);
+        gpn_viewMaterial.setVgap(12);
+        gpn_viewMaterial.setHgap(12);
 
-        TableView<Books> tvw_viewAudiovisual = new TableView();
+        
+        //TableView que muestra materiales audiovisuales
+        TableView<AudioVisual> tvw_viewAudiovisual = new TableView();
         tvw_viewAudiovisual.setVisible(false);
+        
+        
+        AudioVisualFile avf = new AudioVisualFile(new File("./AudioVisual.dat"));
+        ObservableList<AudioVisual> audioVisuals = avf.getAudioVisuals();
+        tvw_viewAudiovisual.setItems(audioVisuals);
 
-//      Falta el observableList        
+//      Falta el observableList // agregado arriba        
         TableColumn nameAVColumn = new TableColumn("Nombre");
         nameAVColumn.setMinWidth(150);
         nameAVColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -318,6 +407,8 @@ public class InterfaceModules {
         tvw_viewAudiovisual.setTableMenuButtonVisible(true);
         gpn_viewMaterial.add(tvw_viewAudiovisual, 1, 1);
 
+        
+        //TableView que muestra materiales: libros
         TableView<Books> tvw_viewBooks = new TableView();
 
         BooksFile bfile = new BooksFile(new File("./Books.dat"));
@@ -356,20 +447,37 @@ public class InterfaceModules {
                 lenguageBColumn, availabilityBColumn, descriptionBColumn);
         tvw_viewBooks.setPrefSize(1100, 475);
         gpn_viewMaterial.add(tvw_viewBooks, 1, 1);
+        
+        Label lbl_titleBooks = new Label("Libros");
+        lbl_titleBooks.setFont(Font.font("Opens Sans"));
+        lbl_titleBooks.setStyle("-fx-font-weight: bold; -fx-font-size: 25");
+        gpn_viewMaterial.add(lbl_titleBooks, 1, 2);
+        
+        Label lbl_titleAudioVisuals = new Label("AudioVisuales");
+        lbl_titleAudioVisuals.setVisible(false);
+        lbl_titleAudioVisuals.setFont(Font.font("Opens Sans"));
+        lbl_titleAudioVisuals.setStyle("-fx-font-weight: bold; -fx-font-size: 25");
+        gpn_viewMaterial.add(lbl_titleAudioVisuals, 1, 2);
 
         Button btn_viewBooks = new Button("Ver libros");
         btn_viewBooks.setOnAction((event) -> {
             tvw_viewAudiovisual.setVisible(false);
+            lbl_titleAudioVisuals.setVisible(false);
             tvw_viewBooks.setVisible(true);
+            lbl_titleBooks.setVisible(true);
         });
         gpn_viewMaterial.add(btn_viewBooks, 0, 0);
 
         Button btn_viewAudiov = new Button("Ver Audiovisual");
         btn_viewAudiov.setOnAction((event) -> {
             tvw_viewBooks.setVisible(false);
+            lbl_titleBooks.setVisible(false);
             tvw_viewAudiovisual.setVisible(true);
+            lbl_titleAudioVisuals.setVisible(true);
         });
         gpn_viewMaterial.add(btn_viewAudiov, 1, 0);
+        
+        
 
         return gpn_viewMaterial;
 

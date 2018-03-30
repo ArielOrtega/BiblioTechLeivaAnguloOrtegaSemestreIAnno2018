@@ -30,7 +30,7 @@ public class BooksFile {
         myFilePath = file.getPath();
         
         //tamanno maximo
-        this.regSize = 200;
+        this.regSize = 500;
         
         //Asegurarse de que el archivo existe
         if(file.exists() && !file.isFile()){
