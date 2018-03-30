@@ -66,9 +66,13 @@ public class MainInterface extends Application {
 
         MenuItem mim_enterBooks = new MenuItem("Libros");
         mim_enterBooks.setOnAction((event) -> {
-            hbx_window.getChildren().clear();
-            presentador.getChildren().clear();
-            presentador.getChildren().addAll(interfaceM.enterBooks());
+            try {
+                hbx_window.getChildren().clear();
+                presentador.getChildren().clear();
+                presentador.getChildren().addAll(interfaceM.enterBooks());
+            } catch (IOException ex) {
+                Logger.getLogger(MainInterface.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
 
         MenuItem mim_enterAudiovisual = new MenuItem("Audiovisual");

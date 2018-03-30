@@ -3,15 +3,20 @@ package Interface;
 import Domain.AudioVisual;
 import Domain.Books;
 import Domain.Loan;
+import Domain.LogicalMethods;
 import Domain.Student;
 import File.AudioVisualFile;
 import File.BooksFile;
 import File.LoanFile;
+import File.StudentFile;
 import java.awt.font.TextAttribute;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OptionalDataException;
 import java.time.LocalDate;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -39,16 +44,22 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.converter.LocalDateStringConverter;
+import javax.swing.JOptionPane;
+import org.controlsfx.control.textfield.TextFields;
 
 public class InterfaceModules {
 
-    ObservableList<Student> testRecords = FXCollections.observableArrayList();
+    ObservableList<Student> observableArrayStudent= FXCollections.observableArrayList();
+    ArrayList<Student> arrayListStudent= new ArrayList<>();
+    LogicalMethods methods= new LogicalMethods();
+    StudentFile sft= new StudentFile();
     static String genre, idiom;
     static int valueDelivery1, valueDelivery2, valueDelivery3;
     static LocalDate date1;
@@ -78,10 +89,19 @@ public class InterfaceModules {
         cb_career.setPromptText("Carrera");
         cb_career.setEditable(false);
 
-        Button btn_add = new Button("Agregar");
-        btn_add.setOnAction((event) -> {
-            testRecords.add(new Student(tf_name.getText(), tf_entryYear.getText(),
-                    cb_career.getValue(), "metodo", "metodo"));
+        cb_career.setOnAction((event) -> {
+            
+            if (tf_name.getText().length()>0 && tf_entryYear.getText().length()>0 && cb_career.getValue().length()>0) {
+                Student s = new Student(tf_name.getText(), tf_entryYear.getText(),
+                        cb_career.getValue(), "metodo", methods.getStudentId(cb_career.getValue(), tf_entryYear.getText(), arrayListStudent.size()));
+
+                observableArrayStudent.add(s);
+                arrayListStudent.add(s);
+
+                tf_name.clear();
+                tf_entryYear.clear();
+            }
+            
         });
 
         gridpane.add(lbl_title, 0, 0);
@@ -90,7 +110,6 @@ public class InterfaceModules {
         gridpane.add(lbl_entryYear, 0, 5);
         gridpane.add(tf_entryYear, 0, 6);
         gridpane.add(cb_career, 0, 8);
-        gridpane.add(btn_add, 0, 10);
         gridpane.setVgap(5);
 
         return gridpane;
@@ -115,16 +134,33 @@ public class InterfaceModules {
         columnLoans.setCellValueFactory(new PropertyValueFactory("previousLoans"));
 
         table.getColumns().addAll(columnId, columnName, columnYear, columnCareer, columnLoans);
-        table.setItems(testRecords);
+        table.setItems(observableArrayStudent);
         table.setEditable(false);
 
+        Button btn_addToFile= new Button("Añadir al archivo");
+        btn_addToFile.setOnAction((event) -> {
+            sft.writeFile(arrayListStudent);
+        });
+        
+        Button btn_showRecords= new Button("Ver Registros");
+        btn_showRecords.setOnAction((event) -> {
+            try {
+                table.setItems(sft.readFile());
+            } catch (FileNotFoundException | ClassNotFoundException | OptionalDataException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
+        HBox hbox_buttons= new HBox();
+        hbox_buttons.getChildren().addAll(btn_addToFile, btn_showRecords);
+
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(table);
+        vbox.getChildren().addAll(table, hbox_buttons);
 
         return vbox;
     }
 
-    public static GridPane enterBooks() {
+    public static GridPane enterBooks() throws IOException {
 
         //creacion del gridpane con sus caracteristicas
         GridPane gpn_enterBooks = new GridPane();
@@ -152,7 +188,7 @@ public class InterfaceModules {
 
         TextField tfd_name = new TextField();
         gpn_enterBooks.add(tfd_name, 1, 0);
-
+        
         Label lbl_signatureB = new Label("Signatura");
         lbl_signatureB.setTextFill(Color.BLACK);
         lbl_signatureB.setFont(Font.font("Arial", FontWeight.BOLD, 15));
@@ -513,8 +549,25 @@ public class InterfaceModules {
 
         tfd_idStudent = new TextField();
         gpn_enterLoan.add(tfd_idStudent, 1, 3);
-
+        
         btn_checkStudent = new Button("Ingresar");
+        btn_checkStudent.setDisable(true);
+        
+        tfd_idStudent.setOnAction((event) -> {
+            try {
+                LogicalMethods methods= new LogicalMethods();
+                if(!methods.checkStudentRecord(tfd_idStudent.getText())){
+                    tfd_idStudent.clear();
+                    tfd_idStudent.setText("Estudiante no encontrado");
+                    btn_checkStudent.setDisable(true);
+                }else{
+                    btn_checkStudent.setDisable(false);
+                }
+            } catch (FileNotFoundException | ClassNotFoundException | OptionalDataException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+
         btn_checkStudent.setOnAction((event) -> {
 
             String student = tfd_idStudent.getText().replaceAll(" ", "");
@@ -535,7 +588,7 @@ public class InterfaceModules {
         lbl_choise.setFont(Font.font("Arial", FontWeight.BOLD, 15));
         gpn_enterLoan.add(lbl_choise, 0, 0);
 
-        lbl_signature = new Label("Signatura del Artículo");
+        lbl_signature = new Label("Signatura o nombre del artículo");
         lbl_signature.setVisible(false);
         lbl_signature.setTextFill(Color.BLACK);
         lbl_signature.setFont(Font.font("Arial", FontWeight.BOLD, 15));
@@ -617,15 +670,25 @@ public class InterfaceModules {
             @Override
             public void handle(ActionEvent event) {
 
-                tfd_signatureAV.setVisible(false);
-                lbl_signature.setVisible(true);
-                tfd_signatureB.setVisible(true);
-                lbl_deliveryDay.setVisible(true);
-                dpk_delivaeyDay.setVisible(true);
-                btn_enterLoan.setVisible(true);
-                btn_exit.setVisible(true);
-                tfd_signatureB.setText("ISBN-");
-                dpk_delivaeyDay.setValue(LocalDate.now());
+                try {
+                    tfd_signatureAV.setVisible(false);
+                    lbl_signature.setVisible(true);
+                    tfd_signatureB.setVisible(true);
+                    lbl_deliveryDay.setVisible(true);
+                    dpk_delivaeyDay.setVisible(true);
+                    btn_enterLoan.setVisible(true);
+                    btn_exit.setVisible(true);
+                    
+                    //tfd_signatureB.setText("ISBN-");
+                    LogicalMethods methods= new LogicalMethods();
+                    String options[]= methods.autocompleteOptions();
+                    TextFields.bindAutoCompletion(tfd_signatureB, options);
+                    
+                    dpk_delivaeyDay.setValue(LocalDate.now());
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
             }
         });
