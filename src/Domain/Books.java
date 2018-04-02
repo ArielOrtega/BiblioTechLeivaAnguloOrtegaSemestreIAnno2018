@@ -8,7 +8,7 @@ public class Books extends Material{
     private String language;
     
     
-    public Books(String name, String author, String signature, String genre, String language, int availability, String description) {
+    public Books(String author, String genre, String language, String name, String signature,  int availability, String description) {
         super(name, signature, availability, description);
         this.author = author;
         this.genre = genre;

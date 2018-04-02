@@ -3,7 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< Updated upstream
             <file>file:/C:/Users/dilan_000/Desktop/Proyecto/BiblioTechLeivaAnguloOrtegaSemestreIAnno2018/src/Interface/InterfaceModules.java</file>
+=======
+            <file>file:/C:/Users/Pablo/Desktop/Proyecto1/BiblioTechLeivaAnguloOrtegaSemestreIAnno2018/src/File/AudioVisualFile.java</file>
+            <file>file:/C:/Users/Pablo/Desktop/Proyecto1/BiblioTechLeivaAnguloOrtegaSemestreIAnno2018/src/Interface/InterfaceModules.java</file>
+            <file>file:/C:/Users/Pablo/Desktop/Proyecto1/BiblioTechLeivaAnguloOrtegaSemestreIAnno2018/src/File/LoanFile.java</file>
+            <file>file:/C:/Users/Pablo/Desktop/Proyecto1/BiblioTechLeivaAnguloOrtegaSemestreIAnno2018/src/File/BooksFile.java</file>
+            <file>file:/C:/Users/Pablo/Desktop/Proyecto1/BiblioTechLeivaAnguloOrtegaSemestreIAnno2018/src/Interface/MainInterface.java</file>
+>>>>>>> Stashed changes
         </group>
     </open-files>
 </project-private>

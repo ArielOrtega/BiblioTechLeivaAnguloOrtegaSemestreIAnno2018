@@ -5,6 +5,7 @@
  */
 package File;
 
+
 import Domain.Books;
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class BooksFile {
     
     //atributos
     public RandomAccessFile randomAccessFile;
-    private int regsQuantity;//cantidad de registros en el archivo
+    private long regsQuantity;//cantidad de registros en el archivo
     private int regSize;//tamanno del registro
     private String myFilePath;//ruta
     
@@ -52,12 +53,12 @@ public class BooksFile {
     }
     
     //establecer la cantidad de registros del archivo 
-    public int fileSize(){
+    public long fileSize(){
         return this.regsQuantity;
     }
     
     //insertar un registro de clase hija libro
-    public boolean putValue(int position, Books book) throws IOException{
+    public boolean putValue(long position, Books book) throws IOException{
         //primero: verificar que sea valida la insercion
         if(position < 0 && position > this.regsQuantity){
             System.err.println("1001 - Record position is out of bounds");
@@ -67,7 +68,7 @@ public class BooksFile {
                 System.err.println("1002 - Record size is out of bounds");
                 return false;
             }else{
-                
+                System.out.println(book.getAutor());
                 randomAccessFile.seek(position * this.regSize);
                 randomAccessFile.writeUTF(book.getAutor());
                 randomAccessFile.writeUTF(book.getGenre());
@@ -138,6 +139,46 @@ public class BooksFile {
         return false;
     }
     
+    //aumentar disponibilidad
+    public boolean avaibilityBook(String signature) throws IOException{
+        Books myBook;
+        
+        //buscar el libro
+        for(int i = 0; i < this.regsQuantity; i++){
+            //obtener el libro de la posicion actual
+            myBook= this.getBook(i);
+            
+            //Verificar que es el mismo objeto para aumentar su disponibilidad
+            if(myBook.getSignature().equalsIgnoreCase(signature)){
+                //aumentar disponibilidad
+                myBook.setAvailability(myBook.getAvailability()+1);
+                
+                return this.putValue(i, myBook);
+            }
+        }
+        return false;
+    }
+    
+     public boolean lessAvaibilityBook(String signature) throws IOException{
+        Books myBook;
+        
+        //buscar el audioVisual
+        for(int i = 0; i < this.regsQuantity; i++){
+            //obtener el audiovisual
+            myBook= this.getBook(i);
+            
+            //Verificar que es el mismo objeto para aumentar su disponibilidad
+            if((myBook.getSignature().equalsIgnoreCase(signature)) && myBook.getAvailability() > 0){
+                //disminuir disponibilidad
+                myBook.setAvailability(myBook.getAvailability()-1);
+                
+                return this.putValue(i, myBook);
+                
+            }
+        }
+        return false;
+    }
+    
     //retornar una lista de libros
     public ArrayList<Books> getAllBooks() throws IOException{
         ArrayList<Books> booksArray = new ArrayList<Books>();
@@ -163,8 +204,8 @@ public class BooksFile {
             }
    
         }//end for       
-        ObservableList<Books> listCar = FXCollections.observableArrayList(bookArray);
-        return listCar;
+        ObservableList<Books> listBook = FXCollections.observableArrayList(bookArray);
+        return listBook;
         
     }
 }

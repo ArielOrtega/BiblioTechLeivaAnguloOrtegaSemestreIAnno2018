@@ -106,6 +106,46 @@ public class AudioVisualFile {
         }
     }//end method
     
+    //aumentar disponibilidad
+    public boolean avaibilityAudioVisual(String signature) throws IOException{
+        AudioVisual myAudioVisual;
+        
+        //buscar el audioVisual
+        for(int i = 0; i < this.regsQuantity; i++){
+            //obtener el audiovisual
+            myAudioVisual= this.getAudioVisual(i);
+            
+            //Verificar que es el mismo objeto para aumentar su disponibilidad
+            if(myAudioVisual.getSignature().equalsIgnoreCase(signature)){
+                //aumentar disponibilidad
+                myAudioVisual.setAvailability(myAudioVisual.getAvailability()+1);
+                
+                return this.putValue(i, myAudioVisual);
+            }
+        }
+        return false;
+    }
+    
+    public boolean lessAvaibilityAudioVisual(String signature) throws IOException{
+        AudioVisual myAudioVisual;
+        
+        //buscar el audioVisual
+        for(int i = 0; i < this.regsQuantity; i++){
+            //obtener el audiovisual
+            myAudioVisual= this.getAudioVisual(i);
+            
+            //Verificar que es el mismo objeto para aumentar su disponibilidad
+            if((myAudioVisual.getSignature().equalsIgnoreCase(signature)) && myAudioVisual.getAvailability() > 0){
+                //disminuir disponibilidad
+                myAudioVisual.setAvailability(myAudioVisual.getAvailability()-1);
+                
+                return this.putValue(i, myAudioVisual);
+                
+            }
+        }
+        return false;
+    }
+    
     //retornar una lista de laudiovisuales
     public ArrayList<AudioVisual> getAllAudioVisuals() throws IOException{
         ArrayList<AudioVisual> audioVisualsArray = new ArrayList<AudioVisual>();

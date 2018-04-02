@@ -215,6 +215,7 @@ public class InterfaceModules {
         cbx_genre.getItems().addAll("Bibliografía", "Clásicos de la Literatura", "Comics", "Ensayos",
                 "Fantasía", "Ficción Literaria", "Historia", "Humor", "Infantil", "Poesía", "Romántico",
                 "Académico", "Otro");
+        cbx_genre.setValue("Académico");
 
         cbx_genre.valueProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -233,6 +234,7 @@ public class InterfaceModules {
         cbx_idiom.setPrefWidth(400);
         cbx_idiom.getItems().addAll("Inglés", "Español", "Chino", "Alemán",
                 "Frances", "Portugués", "Otro");
+        cbx_idiom.setValue("Español");
 
         cbx_idiom.valueProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -257,26 +259,40 @@ public class InterfaceModules {
             @Override
             public void handle(ActionEvent event) {
                 
-                genre = cbx_genre.getValue().toString();
-                idiom = cbx_idiom.getValue().toString();
+                genre = cbx_genre.getValue()+"";
+                idiom = cbx_idiom.getValue()+"";
                 try {
                     
                     BooksFile bfile = new BooksFile(new File("./Books.dat"));
                     
-                    Books book1 = new Books(tfd_name.getText(),tfd_author.getText(),tfd_signatureB.getText(), genre, idiom, 1, txa_description.getText());
-
+                    Books book1 = new Books(tfd_author.getText(), genre, idiom, tfd_name.getText(),tfd_signatureB.getText(), 1, txa_description.getText());
+                    
                     Label lbl_success = new Label("¡Libro ingresado con exito!");
                     lbl_success.setTextFill(Color.GREEN);
                     lbl_success.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-                    lbl_success.setVisible(true);
-                        gpn_enterBooks.add(lbl_success, 3, 7, 4, 4);
-
+                    lbl_success.setVisible(false);
+                    gpn_enterBooks.add(lbl_success, 3, 7, 4, 4);
+                    
                     Label lbl_error = new Label("Llene todos los datos");
                     lbl_error.setVisible(false);
-                        gpn_enterBooks.add(lbl_error, 3, 7, 4, 4);
+                    gpn_enterBooks.add(lbl_error, 3, 7, 4, 4);
+
+                    if(bfile.avaibilityBook(book1.getSignature())){
+                        lbl_success.setVisible(true);
+                        
+                    } else if(tfd_author.getText().isEmpty() || tfd_name.getText().isEmpty() || tfd_signatureB.getText().isEmpty() || txa_description.getText().isEmpty()){
+                        lbl_error.setVisible(true);
+                        lbl_success.setVisible(false);
+                    }else{
+                        lbl_success.setVisible(true);
+                        
+                        
                     
-                    bfile.addEndRecord(book1);
-                    bfile.close();
+                        bfile.addEndRecord(book1);
+                        bfile.close();
+                    }
+                    
+                    
                     
                 } catch (IOException ex) {
                     Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, "Error insertando libro", ex);
@@ -339,13 +355,13 @@ public class InterfaceModules {
         TextField tfd_brand = new TextField();
         gpn_enterAudioV.add(tfd_brand, 1, 2);
 
-        Label lbl_model = new Label("Modelo:");
-        lbl_model.setTextFill(Color.BLACK);
-        lbl_model.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-        gpn_enterAudioV.add(lbl_model, 3, 2);
-
-        TextField tfd_model = new TextField();
-        gpn_enterAudioV.add(tfd_model, 4, 2);
+//        Label lbl_model = new Label("Modelo:");
+//        lbl_model.setTextFill(Color.BLACK);
+//        lbl_model.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+//        gpn_enterAudioV.add(lbl_model, 3, 2);
+//
+//        TextField tfd_model = new TextField();
+//        gpn_enterAudioV.add(tfd_model, 4, 2);
 
         Label lbl_description = new Label("Descripción:");
         lbl_description.setTextFill(Color.BLACK);
@@ -365,28 +381,40 @@ public class InterfaceModules {
                     
                     AudioVisualFile afile = new AudioVisualFile(new File("./AudioVisual.dat"));
                     
-                    AudioVisual audioVisual = new AudioVisual(tfd_brand.getText(), tfd_model.getText(), tfd_signatureAV.getText(), 1, txa_description.getText());
+                    AudioVisual audioVisual = new AudioVisual(tfd_brand.getText(), tfd_kind.getText(), tfd_signatureAV.getText(), 1, txa_description.getText());
                     
                    
                     Label lbl_success = new Label("¡AudioVisual ingresado con exito!");
                     lbl_success.setTextFill(Color.GREEN);
                     lbl_success.setFont(Font.font("Arial", FontWeight.BOLD, 15));
-                    lbl_success.setVisible(true);
+                    lbl_success.setVisible(false);
                         gpn_enterAudioV.add(lbl_success, 3, 7, 4, 4);
 
                     Label lbl_error = new Label("Llene todos los datos");
                     lbl_error.setVisible(false);
                         gpn_enterAudioV.add(lbl_error, 3, 7, 4, 4);
                     
-                    afile.addEndRecord(audioVisual);
-                    afile.close();
+                    //condicional que verifica si y existe para aumentar disponibilidad o ingresar como articulo nuevo
+                    if(afile.avaibilityAudioVisual(audioVisual.getSignature())){
+                        lbl_success.setVisible(true);
+                        lbl_error.setVisible(false);
+                    }else if(tfd_brand.getText().isEmpty() || tfd_kind.getText().isEmpty() || tfd_signatureAV.getText().isEmpty() || txa_description.getText().isEmpty()){
+                        lbl_success.setVisible(false);
+                        lbl_error.setVisible(true);
+                    }else{
+                        lbl_success.setVisible(true);
+                        lbl_error.setVisible(false);
+                        afile.addEndRecord(audioVisual);
+                        afile.close();
+                    }    
+                    
                     
                 } catch (IOException ex) {
                     Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, "Error insertando libro", ex);
                 }
 
                 tfd_kind.setText("");
-                tfd_model.setText("");
+                //tfd_model.setText("");
                 tfd_signatureAV.setText("");
                 txa_description.setText("");
                 tfd_brand.setPromptText("");
@@ -436,7 +464,7 @@ public class InterfaceModules {
 
         TableColumn descritionAVColumn = new TableColumn("Descripcion");
         descritionAVColumn.setMinWidth(150);
-        descritionAVColumn.setCellValueFactory(new PropertyValueFactory<>("availability"));
+        descritionAVColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
         tvw_viewAudiovisual.getColumns().addAll(nameAVColumn, signatureAVColumn, brandAVColumn, availabilityAVColumn, descritionAVColumn);
         tvw_viewAudiovisual.setPrefSize(750, 475);
@@ -457,7 +485,7 @@ public class InterfaceModules {
 
         TableColumn authorBColumn = new TableColumn("Autor");
         authorBColumn.setMinWidth(150);
-        authorBColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+        authorBColumn.setCellValueFactory(new PropertyValueFactory<>("autor"));
 
         TableColumn signatureBColumn = new TableColumn("Signatura");
         signatureBColumn.setMinWidth(150);
@@ -469,14 +497,14 @@ public class InterfaceModules {
 
         TableColumn lenguageBColumn = new TableColumn("Idioma");
         lenguageBColumn.setMinWidth(150);
-        lenguageBColumn.setCellValueFactory(new PropertyValueFactory<>("lenguage"));
+        lenguageBColumn.setCellValueFactory(new PropertyValueFactory<>("language"));
 
         TableColumn availabilityBColumn = new TableColumn("Disponibilidad");
-        availabilityBColumn.setMinWidth(150);
+        availabilityBColumn.setMinWidth(10);
         availabilityBColumn.setCellValueFactory(new PropertyValueFactory<>("availability"));
 
         TableColumn descriptionBColumn = new TableColumn("Descripción");
-        descriptionBColumn.setMinWidth(150);
+        descriptionBColumn.setMinWidth(220);
         descriptionBColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
         tvw_viewBooks.getColumns().addAll(nameBColumn, authorBColumn, signatureBColumn, genreBColumn,
