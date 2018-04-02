@@ -3,15 +3,22 @@ package Interface;
 import Domain.AudioVisual;
 import Domain.Books;
 import Domain.Loan;
+import Domain.LogicalMethods;
 import Domain.Student;
 import File.AudioVisualFile;
 import File.BooksFile;
 import File.LoanFile;
-import java.awt.font.TextAttribute;
+import File.StudentFile;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OptionalDataException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -28,7 +35,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BubbleChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
@@ -39,12 +45,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.converter.LocalDateStringConverter;
+import javax.swing.JOptionPane;
+import org.controlsfx.control.textfield.TextFields;
 
 public class InterfaceModules {
 
@@ -56,9 +65,11 @@ public class InterfaceModules {
     static RadioButton rdb_choiceBook, rdb_choiceAV;
     static TextField tfd_signatureB, tfd_idStudent, tfd_signatureAV;
     static DatePicker dpk_delivaeyDay;
-    static Button btn_enterLoan, btn_checkStudent, btn_exit;
+    static Button btn_enterLoan, btn_checkStudent, btn_exit, btn_delete, btn_exitLoan;
     static Loan loan1;
     static AudioVisualFile avf;
+    static String signatureB, signatureAV, signature, idLoan;
+    static MainInterface mI = new MainInterface();
 
     public GridPane studentRegister() {
         GridPane gridpane = new GridPane();
@@ -78,10 +89,19 @@ public class InterfaceModules {
         cb_career.setPromptText("Carrera");
         cb_career.setEditable(false);
 
-        Button btn_add = new Button("Agregar");
-        btn_add.setOnAction((event) -> {
-            testRecords.add(new Student(tf_name.getText(), tf_entryYear.getText(),
-                    cb_career.getValue(), "metodo", "metodo"));
+        cb_career.setOnAction((event) -> {
+            
+            if (tf_name.getText().length()>0 && tf_entryYear.getText().length()>0 && cb_career.getValue().length()>0) {
+                Student s = new Student(tf_name.getText(), tf_entryYear.getText(),
+                        cb_career.getValue(), "metodo", methods.getStudentId(cb_career.getValue(), tf_entryYear.getText(), arrayListStudent.size()));
+
+                observableArrayStudent.add(s);
+                arrayListStudent.add(s);
+
+                tf_name.clear();
+                tf_entryYear.clear();
+            }
+            
         });
 
         gridpane.add(lbl_title, 0, 0);
@@ -90,7 +110,6 @@ public class InterfaceModules {
         gridpane.add(lbl_entryYear, 0, 5);
         gridpane.add(tf_entryYear, 0, 6);
         gridpane.add(cb_career, 0, 8);
-        gridpane.add(btn_add, 0, 10);
         gridpane.setVgap(5);
 
         return gridpane;
@@ -115,16 +134,33 @@ public class InterfaceModules {
         columnLoans.setCellValueFactory(new PropertyValueFactory("previousLoans"));
 
         table.getColumns().addAll(columnId, columnName, columnYear, columnCareer, columnLoans);
-        table.setItems(testRecords);
+        table.setItems(observableArrayStudent);
         table.setEditable(false);
 
+        Button btn_addToFile= new Button("Añadir al archivo");
+        btn_addToFile.setOnAction((event) -> {
+            sft.writeFile(arrayListStudent);
+        });
+        
+        Button btn_showRecords= new Button("Ver Registros");
+        btn_showRecords.setOnAction((event) -> {
+            try {
+                table.setItems(sft.readFile());
+            } catch (FileNotFoundException | ClassNotFoundException | OptionalDataException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
+        HBox hbox_buttons= new HBox();
+        hbox_buttons.getChildren().addAll(btn_addToFile, btn_showRecords);
+
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(table);
+        vbox.getChildren().addAll(table, hbox_buttons);
 
         return vbox;
     }
 
-    public static GridPane enterBooks() {
+    public static GridPane enterBooks() throws IOException {
 
         //creacion del gridpane con sus caracteristicas
         GridPane gpn_enterBooks = new GridPane();
@@ -152,7 +188,7 @@ public class InterfaceModules {
 
         TextField tfd_name = new TextField();
         gpn_enterBooks.add(tfd_name, 1, 0);
-
+        
         Label lbl_signatureB = new Label("Signatura");
         lbl_signatureB.setTextFill(Color.BLACK);
         lbl_signatureB.setFont(Font.font("Arial", FontWeight.BOLD, 15));
@@ -483,7 +519,7 @@ public class InterfaceModules {
 
     }
 
-    public static GridPane enterLoan() throws IOException {
+   public static GridPane enterLoan() throws IOException {
 
         LoanFile lFile = new LoanFile(new File("./Loans.dat"));
 
@@ -514,17 +550,28 @@ public class InterfaceModules {
         tfd_idStudent = new TextField();
         gpn_enterLoan.add(tfd_idStudent, 1, 3);
 
+        Label lbl_notValue = new Label("Ingresar un valor");
+        lbl_notValue.setVisible(false);
+        lbl_notValue.setTextFill(Color.RED);
+        lbl_notValue.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterLoan.add(lbl_notValue, 2, 4, 3, 4);
+
         btn_checkStudent = new Button("Ingresar");
         btn_checkStudent.setOnAction((event) -> {
 
-            String student = tfd_idStudent.getText().replaceAll(" ", "");
-            lbl_idStudent.setVisible(false);
-            tfd_idStudent.setVisible(false);
-            btn_checkStudent.setVisible(false);
-            lbl_choise.setVisible(true);
-            rdb_choiceAV.setVisible(true);
-            rdb_choiceBook.setVisible(true);
-            
+            if (tfd_idStudent.getText().length() == 0) {
+                lbl_notValue.setVisible(true);
+            } else {
+                lbl_notValue.setVisible(false);
+                String student = tfd_idStudent.getText().replaceAll(" ", "");
+                lbl_idStudent.setVisible(false);
+                tfd_idStudent.setVisible(false);
+                btn_checkStudent.setVisible(false);
+                lbl_choise.setVisible(true);
+                rdb_choiceAV.setVisible(true);
+                rdb_choiceBook.setVisible(true);
+
+            }
 
         });//end Button
         gpn_enterLoan.add(btn_checkStudent, 3, 3);
@@ -543,7 +590,6 @@ public class InterfaceModules {
 
         tfd_signatureB = new TextField("ISBN-");
         tfd_signatureB.setVisible(false);
-//        tfd_signatureAV.setText("ISBN");
         gpn_enterLoan.add(tfd_signatureB, 1, 2);
 
         lbl_deliveryDay = new Label("Día de Entrega");
@@ -560,6 +606,8 @@ public class InterfaceModules {
         dpk_delivaeyDay.setEditable(false);
         dpk_delivaeyDay.setVisible(false);
         dpk_delivaeyDay.setShowWeekNumbers(true);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        dpk_delivaeyDay.setConverter(new LocalDateStringConverter(formatter, null));
         dpk_delivaeyDay.setConverter(new LocalDateStringConverter(FormatStyle.FULL)); //Fecha en un formato String
 
         dpk_delivaeyDay.setOnAction(new EventHandler() {
@@ -572,7 +620,7 @@ public class InterfaceModules {
             }
         });
 
-        //Metodo para deshabilitar los dias anteriores al actual
+//        Metodo para deshabilitar los dias anteriores al actual
         final Callback<DatePicker, DateCell> dayCellFactory
                 = new Callback<DatePicker, DateCell>() {
             @Override
@@ -582,7 +630,7 @@ public class InterfaceModules {
                     public void updateItem(LocalDate item, boolean empty) {
                         super.updateItem(item, empty);
 
-                        if (item.isBefore(dpk_loanDay.getValue().plusDays(0))) {
+                        if (item.isBefore(dpk_loanDay.getValue().plusDays(-1))) {
                             setDisable(true);
                             setStyle("-fx-background-color: #ffc0cb;");
                         }
@@ -609,9 +657,8 @@ public class InterfaceModules {
         ToggleGroup group = new ToggleGroup();
 
         rdb_choiceBook = new RadioButton("Libro");
-        rdb_choiceBook.setVisible(false);        
+        rdb_choiceBook.setVisible(false);
         rdb_choiceBook.setToggleGroup(group);
-
         rdb_choiceBook.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -669,74 +716,103 @@ public class InterfaceModules {
             }
         });
         gpn_enterLoan.add(rdb_choiceAV, 1, 1);
-        
+
         lbl_info = new Label("Salir para realizar otro prestamo");
         lbl_info.setVisible(false);
         gpn_enterLoan.add(lbl_info, 2, 6, 3, 6);
 
+        Label lbl_notValueEnter = new Label("Llenar todos lo espacios");
+        lbl_notValueEnter.setVisible(false);
+        lbl_notValueEnter.setTextFill(Color.RED);
+        lbl_notValueEnter.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gpn_enterLoan.add(lbl_notValueEnter, 3, 4, 4, 6);
+
         btn_enterLoan = new Button("Ingresar Prestamo");
         btn_enterLoan.setVisible(false);
-        btn_enterLoan.setOnAction((event) -> {
-            String idStudent = tfd_idStudent.getText().replaceAll(" ", "");
-            String signatureB = tfd_signatureB.getText().replaceAll(" ", "");
-            String signatureAV = tfd_signatureAV.getText().replaceAll(" ", "");
-            String loanDay = "" + LocalDate.now();
-            String deliveryDay = valueDelivery3 + "-" + valueDelivery1 + "-" + valueDelivery2;
-            String kind = "";
+        btn_enterLoan.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String idStudent = tfd_idStudent.getText().replaceAll(" ", "");
 
-            if (rdb_choiceAV.isSelected()) {
-                kind = "Audiovisual";
-                loan1 = new Loan(idStudent, signatureAV, loanDay, deliveryDay, kind);
-            } else {
-                kind = "Libro";
-                loan1 = new Loan(idStudent, signatureB, loanDay, deliveryDay, kind);
-            }
+                if ((tfd_signatureB.getText().replaceAll(" ", "").length() == 5
+                        && tfd_signatureAV.getText().replaceAll(" ", "").length() == 0) || valueDelivery3 == 0) {
+                    lbl_notValueEnter.setVisible(true);
 
-            try {
+                } else {
+                    signatureB = tfd_signatureB.getText();
+                    signatureAV = tfd_signatureAV.getText();
+                    String loanDay = "" + LocalDate.now();
+                    String deliveryDay = "" + date1;
+                    String kind = "";
 
-                lFile.addEndRecord(loan1);
-                lFile.close();
-               
-                tfd_signatureB.setDisable(true); 
-                tfd_signatureAV.setDisable(true);
-                dpk_delivaeyDay.setDisable(true);                
-                rdb_choiceBook.setDisable(true);
-                rdb_choiceAV.setDisable(true);
-                btn_enterLoan.setDisable(true);
-                lbl_info.setVisible(true);
-                
-                //Se limpian los valores anteriormente ingresados 
-                tfd_idStudent.setText("");
-                tfd_signatureB.setText("");
-                dpk_delivaeyDay.setValue(LocalDate.now()); //Se asigna el valor por defecto del DatePicker
+                    if (rdb_choiceAV.isSelected()) {
+                        kind = "Audiovisual";
+                        loan1 = new Loan(idStudent, signatureAV, loanDay, deliveryDay, kind);
+                    } else {
+                        kind = "Libro";
+                        loan1 = new Loan(idStudent, signatureB, loanDay, deliveryDay, kind);
+                    }
+                    try {
 
-            } catch (IOException ex) {
-                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                        lFile.addEndRecord(loan1);
+                        lFile.close();
+
+                        lbl_notValueEnter.setVisible(false);
+                        tfd_signatureB.setDisable(true);
+                        tfd_signatureAV.setDisable(true);
+                        dpk_delivaeyDay.setDisable(true);
+                        rdb_choiceBook.setDisable(true);
+                        rdb_choiceAV.setDisable(true);
+                        btn_enterLoan.setDisable(true);
+                        lbl_info.setVisible(true);
+
+                        //Se limpian los valores anteriormente ingresados 
+                        tfd_idStudent.setText("");
+                        tfd_signatureB.setText("");
+                        dpk_delivaeyDay.setValue(LocalDate.now()); //Se asigna el valor por defecto del DatePicker
+
+                    } catch (IOException ex) {
+                        Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
+
             }
         });
         gpn_enterLoan.add(btn_enterLoan, 4, 4);
 
-        btn_exit = new Button("Salir");
-        btn_exit.setVisible(false);
-        btn_exit.setOnAction((event) -> {
-            lbl_signature.setVisible(false);
-            tfd_signatureB.setVisible(false);
-            lbl_deliveryDay.setVisible(false);
-            dpk_delivaeyDay.setVisible(false);
-            lbl_choise.setVisible(false);
-            rdb_choiceBook.setVisible(false);
-            rdb_choiceAV.setVisible(false);
-            btn_enterLoan.setVisible(false);
-            lbl_warning.setVisible(false);
-            lbl_success.setVisible(false);
-            lbl_info.setVisible(false);
-            btn_exit.setVisible(false);
-            tfd_signatureAV.setVisible(false);
-            lbl_idStudent.setVisible(true);
-            tfd_idStudent.setVisible(true);
-            btn_checkStudent.setVisible(true);
-        });
-        gpn_enterLoan.add(btn_exit, 4, 6);
+//        btn_exit = new Button("Salir");
+//        btn_exit.setVisible(false);
+//        btn_exit.setOnAction((event) -> {
+//            
+////            lbl_signature.setVisible(false);
+////            tfd_signatureB.setVisible(false);
+////            lbl_deliveryDay.setVisible(false);
+////            dpk_delivaeyDay.setVisible(false);
+////            lbl_choise.setVisible(false);
+////            rdb_choiceBook.setVisible(false);
+////            rdb_choiceAV.setVisible(false);
+////            btn_enterLoan.setVisible(false);
+////            lbl_warning.setVisible(false);
+////            lbl_success.setVisible(false);
+////            lbl_info.setVisible(false);
+////            btn_exit.setVisible(false);
+////            tfd_signatureAV.setVisible(false);
+////            lbl_idStudent.setVisible(true);
+////            tfd_idStudent.setVisible(true);
+////            btn_checkStudent.setVisible(true);
+////            tfd_idStudent.setText("");
+////            tfd_signatureAV.setText("");
+////            tfd_signatureB.setText("");
+////            dpk_delivaeyDay.setValue(LocalDate.now());
+////            tfd_signatureB.setDisable(false);
+////            tfd_signatureAV.setDisable(false);
+////            dpk_delivaeyDay.setDisable(false);
+////            rdb_choiceBook.setDisable(false);
+////            rdb_choiceAV.setDisable(false);
+////            btn_enterLoan.setDisable(false);
+//        });
+//        gpn_enterLoan.add(btn_exit, 4, 6);
 
         return gpn_enterLoan;
 
@@ -747,11 +823,12 @@ public class InterfaceModules {
         LoanFile lfile = new LoanFile(new File("./Loans.dat"));
 
         GridPane gpn_deleteLoan = new GridPane();
-        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(200));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(150));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(150));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(150));
+        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(250));
         gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(250));
         gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(150));
-        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(200));
-        gpn_deleteLoan.getColumnConstraints().add(new ColumnConstraints(250));
         gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
         gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
         gpn_deleteLoan.getRowConstraints().add(new RowConstraints(60));
@@ -764,68 +841,173 @@ public class InterfaceModules {
         gpn_deleteLoan.setPrefSize(300, 300);
 
         Label lbl_signatLoan = new Label("Signatura");
-        gpn_deleteLoan.add(lbl_signatLoan, 0, 0);
+        gpn_deleteLoan.add(lbl_signatLoan, 0, 2);
 
         TextField tfd_signatLoan = new TextField();
-//        tfd_signatLoan.setOnKeyPressed((event) -> {
-//           
-//            String signature = tfd_signatLoan.getText();
-//            
-//            
-//        });
-        gpn_deleteLoan.add(tfd_signatLoan, 1, 0);
+        gpn_deleteLoan.add(tfd_signatLoan, 1, 2);
+
+        Label lbl_idLoan = new Label("Carné estudiante");
+        gpn_deleteLoan.add(lbl_idLoan, 3, 2);
+
+        TextField tfd_idLoan = new TextField();        
+        gpn_deleteLoan.add(tfd_idLoan, 4, 2);
 
         Label lbl_warningL = new Label("Prestamo no resgistrado");
         lbl_warningL.setVisible(false);
         lbl_warningL.setTextFill(Color.RED);
-        gpn_deleteLoan.add(lbl_warningL, 4, 0);
-        
-        Label lbl_successL = new Label("Prestamo registrado");
-        lbl_successL.setTextFill(Color.RED);
-        lbl_successL.setVisible(false);
-        gpn_deleteLoan.add(lbl_successL, 4, 0);
+        gpn_deleteLoan.add(lbl_warningL, 4, 3);
+
+        Label lbl_loans = new Label("Prestamo");
+        lbl_loans.setVisible(false);
+        gpn_deleteLoan.add(lbl_loans, 0, 0);
+
+        Label lbl_idStudentL = new Label();
+        lbl_idStudentL.setTextFill(Color.BROWN);
+        gpn_deleteLoan.add(lbl_idStudentL, 1, 1);
+
+        Label lbl_signatureL = new Label();
+        lbl_signatureL.setTextFill(Color.BROWN);
+        gpn_deleteLoan.add(lbl_signatureL, 2, 1);
+
+        Label lbl_loanDayL = new Label();
+        lbl_loanDayL.setTextFill(Color.BROWN);
+        gpn_deleteLoan.add(lbl_loanDayL, 3, 1);
+
+        Label lbl_deliveyDayL = new Label();
+        lbl_deliveyDayL.setTextFill(Color.BROWN);
+        gpn_deleteLoan.add(lbl_deliveyDayL, 4, 1);
+
+        Label lbl_kindL = new Label();
+        lbl_kindL.setTextFill(Color.BROWN);
+        gpn_deleteLoan.add(lbl_kindL, 5, 1);
+
+        Label lbl_payL = new Label("Pago");
+        lbl_payL.setVisible(false);
+        gpn_deleteLoan.add(lbl_payL, 0, 2);
+
+        Label lbl_payLoan = new Label();
+        lbl_payLoan.setTextFill(Color.BROWN);
+        gpn_deleteLoan.add(lbl_payLoan, 1, 2, 3, 3);
 
         Button btn_search = new Button("Buscar");
-        btn_search.setOnAction((event) -> {
+        btn_search.setOnAction((ActionEvent event) -> {
 
-            String signature = tfd_signatLoan.getText();
+            signature = tfd_signatLoan.getText().replaceAll(" ", "");
+            idLoan = tfd_idLoan.getText().replaceAll(" ", "");
 
             try {
-                if (lfile.searchLoan(signature) == -1) {
+                if (lfile.searchDeleteLoan(signature, idLoan) == -1) {
                     lbl_warningL.setVisible(true);
+
                 } else {
-                    lfile.deleteLoan(signature);
-                    lfile.close();
+
+                    lbl_warningL.setVisible(false);
+                    lbl_signatLoan.setVisible(false);
+                    tfd_signatLoan.setVisible(false);
+                    lbl_idLoan.setVisible(false);
+                    tfd_idLoan.setVisible(false);
+                    btn_search.setVisible(false);
+                    lbl_loans.setVisible(true);
+                    lbl_idStudentL.setText("Carné: " + lfile.getLoan(lfile.searchLoan(signature)).getStudentId());
+                    lbl_signatureL.setText("Signatura: " + lfile.getLoan(lfile.searchLoan(signature)).getSignature());
+                    lbl_loanDayL.setText("Día de prestamo: " + lfile.getLoan(lfile.searchLoan(signature)).getLoanDay());
+                    lbl_deliveyDayL.setText("Día de devolución: " + lfile.getLoan(lfile.searchLoan(signature)).getDeliveryDay());
+                    lbl_kindL.setText("Articulo: " + lfile.getLoan(lfile.searchLoan(signature)).getKind());
+                    lbl_payL.setVisible(true);
+                    btn_delete.setVisible(true);
+
+                    Calendar calendar = new GregorianCalendar();
+                    int year = calendar.get(Calendar.YEAR);
+                    int month = calendar.get(Calendar.MONTH) + 1;
+                    int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate localDate = LocalDate.parse(lfile.getLoan(lfile.searchDeleteLoan(signature, idLoan)).getDeliveryDay(), formatter);
+                    int value1 = localDate.getDayOfMonth();
+                    int value2 = localDate.getMonthValue();
+                    int value3 = localDate.getYear();
+
+                    long balance = lfile.numberOfDays(value1, value2, value3, day, month, year);
+
+                    if (balance >= 365) {
+                        lbl_payLoan.setText("Sin morosidades");
+                    } else {
+                        lbl_payLoan.setText(lfile.fineOfPayment(balance) + " colones por " + balance + " dias retrasados");
+                    }
+
                 }
             } catch (IOException ex) {
                 Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-        });
-        gpn_deleteLoan.add(btn_search, 3, 0);
+        }
+        );
+        gpn_deleteLoan.add(btn_search, 5, 4);
 
-//        TableView<Loan> tvw_deleteLoan = new TableView();      
-//
-//        TableColumn idColumn = new TableColumn("Carné");
-//        idColumn.setMinWidth(150);
-//        idColumn.setCellValueFactory(new PropertyValueFactory<>("studentId"));
-//
-//        TableColumn signatureColumn = new TableColumn("Signatura");
-//        signatureColumn.setMinWidth(150);
-//        signatureColumn.setCellValueFactory(new PropertyValueFactory<>("signature"));
-//
-//        TableColumn loanDayColumn = new TableColumn("Día de prestamo");
-//        loanDayColumn.setMinWidth(150);
-//        loanDayColumn.setCellValueFactory(new PropertyValueFactory<>("loanDay"));
-//
-//        TableColumn deliveryColumn = new TableColumn("Dia de devolución");
-//        deliveryColumn.setMinWidth(150);
-//        deliveryColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryDay"));
-//
-//        tvw_deleteLoan.getColumns().addAll(idColumn, signatureColumn, loanDayColumn, deliveryColumn);
-//        tvw_deleteLoan.setPrefSize(600, 500);
-//        tvw_deleteLoan.setTableMenuButtonVisible(true);
-//        gpn_deleteLoan.add(tvw_deleteLoan, 0, 0);
+        Label lbl_successL = new Label("Se ha eliminado con exito");
+        lbl_successL.setTextFill(Color.GREEN);
+        lbl_successL.setVisible(false);
+        gpn_deleteLoan.add(lbl_successL, 4, 5, 5, 5);
+
+        btn_delete = new Button("Eliminar");
+        btn_delete.setVisible(false);
+        btn_delete.setOnAction(
+                (event) -> {
+
+                    try {
+
+                        lfile.deleteLoan(signature);
+                        lfile.close();
+                        lbl_successL.setVisible(true);
+                        lbl_payLoan.setDisable(true);
+                        lbl_loans.setDisable(true);
+                        lbl_idStudentL.setDisable(true);
+                        lbl_signatureL.setDisable(true);
+                        lbl_loanDayL.setDisable(true);
+                        lbl_deliveyDayL.setDisable(true);
+                        lbl_kindL.setDisable(true);
+                        lbl_payL.setDisable(true);
+                        btn_delete.setVisible(false);
+                        btn_exitLoan.setVisible(true);
+
+                    } catch (IOException ex) {
+                        Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+        );
+        gpn_deleteLoan.add(btn_delete, 5, 4);
+
+        btn_exitLoan = new Button("Salir");
+        btn_exitLoan.setVisible(false);
+        btn_exitLoan.setOnAction((event) -> {
+
+            btn_exitLoan.setVisible(false);
+            lbl_successL.setVisible(false);
+            lbl_payLoan.setVisible(false);
+            lbl_loans.setVisible(false);
+            lbl_idStudentL.setVisible(false);
+            lbl_signatureL.setVisible(false);
+            lbl_loanDayL.setVisible(false);
+            lbl_deliveyDayL.setVisible(false);
+            lbl_kindL.setVisible(false);
+            lbl_payL.setVisible(false);
+            lbl_payLoan.setVisible(false);
+            lbl_loans.setDisable(false);
+            lbl_idStudentL.setDisable(false);
+            lbl_signatureL.setDisable(false);
+            lbl_loanDayL.setDisable(false);
+            lbl_deliveyDayL.setDisable(false);
+            lbl_kindL.setDisable(false);
+            lbl_payL.setDisable(false);
+            lbl_signatLoan.setVisible(true);
+            tfd_signatLoan.setVisible(true);
+            lbl_idLoan.setVisible(true);
+            tfd_idLoan.setVisible(true);
+            btn_search.setVisible(true);
+
+        });
+        gpn_deleteLoan.add(btn_exitLoan, 5, 4);
+
         return gpn_deleteLoan;
 
     }
