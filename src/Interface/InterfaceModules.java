@@ -53,11 +53,13 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.converter.LocalDateStringConverter;
 import javax.swing.JOptionPane;
-import org.controlsfx.control.textfield.TextFields;
+//import org.controlsfx.control.textfield.TextFields;
 
 public class InterfaceModules {
 
-    ObservableList<Student> testRecords = FXCollections.observableArrayList();
+    ObservableList<Student> observableArrayStudent = FXCollections.observableArrayList();
+    ArrayList<Student> arrayListStudent = new ArrayList<>();
+    LogicalMethods methods = new LogicalMethods();    
     static String genre, idiom;
     static int valueDelivery1, valueDelivery2, valueDelivery3;
     static LocalDate date1;
@@ -70,6 +72,7 @@ public class InterfaceModules {
     static AudioVisualFile avf;
     static String signatureB, signatureAV, signature, idLoan;
     static MainInterface mI = new MainInterface();
+    StudentFile sft;
 
     public GridPane studentRegister() {
         GridPane gridpane = new GridPane();

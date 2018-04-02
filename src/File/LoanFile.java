@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -68,7 +69,7 @@ public class LoanFile {
     //Metodo para que el siguiente ingreso de datos sea al final del archivo
     public void addEndRecord(Loan car) throws IOException {
         if (putValue(this.regsQuantity, car)) {
-            regsQuantity++;        
+            regsQuantity++;
         }
     }//end method
 
@@ -92,7 +93,7 @@ public class LoanFile {
 //            if (loanTemp.getSignature().equalsIgnoreCase("deleted")) {
 //                return null;
 //            } else {
-                return loanTemp;
+            return loanTemp;
 //            }
 
         } else {
@@ -140,7 +141,7 @@ public class LoanFile {
 
     public int searchLoan(String signature) throws IOException {
         Loan myLoan;
-        
+
         //buscar el prestamo
         for (int i = 0; i < fileSize(); i++) {
             randomAccessFile.seek(i * regSize);
@@ -151,24 +152,53 @@ public class LoanFile {
                 return i;
             }
         }
-        return -1; 
+        return -1;
     }//end method
-    
-//    public int cantidadDias(int diaSalida, int mesSalida, int añoSalida, int diaLlegada, int mesLlegada, int añoLlegada) {
-//
-//        Calendar c = Calendar.getInstance();
-//
-//        Calendar fechaInicio = new GregorianCalendar();
-//        fechaInicio.set(añoSalida, mesSalida, diaSalida);
-//
-//        Calendar fechaFin = new GregorianCalendar();
-//        fechaFin.set(añoLlegada, mesLlegada, diaLlegada);
-//
-//        c.setTimeInMillis(fechaFin.getTime().getTime() - fechaInicio.getTime().getTime());
-//
-//        return c.get(Calendar.DAY_OF_YEAR);
-//    }//fin cantidadDias
-    
-    
+
+    //metodo para buscar un prestamo a partir de de nombre y signatura para eliminar
+    public int searchDeleteLoan(String signature, String idStudent) throws IOException {
+        Loan myLoan;
+
+        //buscar el prestamo
+        for (int i = 0; i < fileSize(); i++) {
+            randomAccessFile.seek(i * regSize);
+            //obtener el auto de la posici'on actual
+            myLoan = this.getLoan(i);
+
+            if (myLoan.getSignature().equalsIgnoreCase(signature) && myLoan.getStudentId().equalsIgnoreCase(idStudent)) {
+                return i;
+            }
+        }
+        return -1;
+
+    }//end method
+
+    public long numberOfDays(int deliveryDay, int deliveryMonth, int deliveyYear,
+            int realDeDay, int realDeMonth, int realDeYear) {
+
+        Calendar c = Calendar.getInstance();
+
+        Calendar fechaInicio = new GregorianCalendar();
+        fechaInicio.set(deliveyYear, deliveryMonth, deliveryDay);
+
+        Calendar fechaFin = new GregorianCalendar();
+        fechaFin.set(realDeDay, realDeMonth, realDeDay);
+
+        c.setTimeInMillis(fechaFin.getTime().getTime() - fechaInicio.getTime().getTime());
+
+        return c.get(Calendar.DAY_OF_YEAR);
+    }//end method
+
+    public long fineOfPayment(long numberOfdays) {
+
+        long pay = 0;
+
+        if (numberOfdays > 0) {
+
+            pay = numberOfdays * 50;
+
+        }
+        return pay;
+    }//end method
 
 }//end LoanFile
