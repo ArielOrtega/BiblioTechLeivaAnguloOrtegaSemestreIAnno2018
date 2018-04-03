@@ -107,7 +107,7 @@ public class AudioVisualFile {
     }//end method
     
     //aumentar disponibilidad
-    public boolean avaibilityAudioVisual(String signature) throws IOException{
+    public boolean avaibilityAudioVisual(String signature, int quantity) throws IOException{
         AudioVisual myAudioVisual;
         
         //buscar el audioVisual
@@ -118,7 +118,7 @@ public class AudioVisualFile {
             //Verificar que es el mismo objeto para aumentar su disponibilidad
             if(myAudioVisual.getSignature().equalsIgnoreCase(signature)){
                 //aumentar disponibilidad
-                myAudioVisual.setAvailability(myAudioVisual.getAvailability()+1);
+                myAudioVisual.setAvailability(myAudioVisual.getAvailability()+quantity);
                 
                 return this.putValue(i, myAudioVisual);
             }

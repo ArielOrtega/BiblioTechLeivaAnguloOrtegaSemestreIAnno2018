@@ -68,7 +68,6 @@ public class BooksFile {
                 System.err.println("1002 - Record size is out of bounds");
                 return false;
             }else{
-                System.out.println(book.getAutor());
                 randomAccessFile.seek(position * this.regSize);
                 randomAccessFile.writeUTF(book.getAutor());
                 randomAccessFile.writeUTF(book.getGenre());
@@ -140,7 +139,7 @@ public class BooksFile {
     }
     
     //aumentar disponibilidad
-    public boolean avaibilityBook(String signature) throws IOException{
+    public boolean avaibilityBook(String signature, int quantity) throws IOException{
         Books myBook;
         
         //buscar el libro
@@ -151,7 +150,7 @@ public class BooksFile {
             //Verificar que es el mismo objeto para aumentar su disponibilidad
             if(myBook.getSignature().equalsIgnoreCase(signature)){
                 //aumentar disponibilidad
-                myBook.setAvailability(myBook.getAvailability()+1);
+                myBook.setAvailability(myBook.getAvailability()+quantity);
                 
                 return this.putValue(i, myBook);
             }

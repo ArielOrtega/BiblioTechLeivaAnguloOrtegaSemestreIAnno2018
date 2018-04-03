@@ -19,6 +19,8 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -35,6 +37,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
@@ -295,7 +298,7 @@ public class InterfaceModules {
                     lbl_error.setVisible(false);
                     gpn_enterBooks.add(lbl_error, 3, 7, 4, 4);
 
-                    if(bfile.avaibilityBook(book1.getSignature())){
+                    if(bfile.avaibilityBook(book1.getSignature(),1)){
                         lbl_success.setVisible(true);
                         
                     } else if(tfd_author.getText().isEmpty() || tfd_name.getText().isEmpty() || tfd_signatureB.getText().isEmpty() || txa_description.getText().isEmpty()){
@@ -413,7 +416,7 @@ public class InterfaceModules {
                         gpn_enterAudioV.add(lbl_error, 3, 7, 4, 4);
                     
                     //condicional que verifica si y existe para aumentar disponibilidad o ingresar como articulo nuevo
-                    if(afile.avaibilityAudioVisual(audioVisual.getSignature())){
+                    if(afile.avaibilityAudioVisual(audioVisual.getSignature(),1)){
                         lbl_success.setVisible(true);
                         lbl_error.setVisible(false);
                     }else if(tfd_brand.getText().isEmpty() || tfd_kind.getText().isEmpty() || tfd_signatureAV.getText().isEmpty() || txa_description.getText().isEmpty()){
@@ -488,6 +491,83 @@ public class InterfaceModules {
         tvw_viewAudiovisual.setPrefSize(750, 475);
         tvw_viewAudiovisual.setTableMenuButtonVisible(true);
         gpn_viewMaterial.add(tvw_viewAudiovisual, 1, 1);
+        
+        HBox hbx_2nodes = new HBox();
+        hbx_2nodes.setSpacing(10);
+        
+        //label por si no selecciono un item en la tabla
+        Label lbl_unselected_row = new Label("No ha seleccionado un ejemplar");
+        lbl_unselected_row.setVisible(false);
+        lbl_unselected_row.setTextFill(Color.RED);
+        lbl_unselected_row.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        
+        //exito al ingresar ejemplares
+        Label lbl_success_row = new Label("Increased succesfully!");
+        lbl_success_row.setVisible(false);
+        lbl_success_row.setTextFill(Color.GREEN);
+        lbl_success_row.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        
+        //boton para aumentar la disponibilidad audiovisual
+        Button btn_increaseAvaibility = new Button("Aumentar disponibilidad");
+        btn_increaseAvaibility.setVisible(false);
+        
+        //se annaden el boton y el label a un hbox para que ambos esten debajo de la tabla
+        hbx_2nodes.getChildren().addAll(btn_increaseAvaibility, lbl_unselected_row, lbl_success_row);
+        gpn_viewMaterial.add(hbx_2nodes, 1, 3);
+        btn_increaseAvaibility.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                
+                AudioVisual av1 = tvw_viewAudiovisual.getSelectionModel().getSelectedItem();
+                
+                if(av1 != null){
+                    
+                    lbl_unselected_row.setVisible(false);
+                    //ventana de alerta para ingresar el aumento de disponibilidad
+                    List<String> choices = new ArrayList<>();
+                    choices.add("1");
+                    choices.add("2");
+                    choices.add("3");
+                    choices.add("4");
+                    choices.add("5");
+                    choices.add("6");
+                    choices.add("7");
+                    choices.add("8");
+                    choices.add("9");
+                    choices.add("10");
+                    
+                    ChoiceDialog<String> dialog = new ChoiceDialog<>("1", choices);
+                    dialog.setTitle("Disponibilidad");
+                    dialog.setHeaderText("Ingrese el aumento de AudioVisuales");
+                    dialog.setContentText("Cantidad");
+                    
+                    // obtener el valor.
+                    Optional<String> result = dialog.showAndWait();
+                    if (result.isPresent()){
+                        try {
+                            AudioVisualFile avf = new AudioVisualFile(new File("./AudioVisual.dat"));
+                            
+                            int quanty = Integer.parseInt(result.get());
+                            if(avf.avaibilityAudioVisual(av1.getSignature(),quanty)){
+                                ObservableList<AudioVisual> audioVisuals = avf.getAudioVisuals();
+                                tvw_viewAudiovisual.setItems(audioVisuals);
+                                lbl_success_row.setVisible(true);
+                            }else{
+                                
+                            }
+                        } catch (IOException ex) {
+                            Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                        
+                    }
+                } else { //si no selecciono nada en la tabla
+                    lbl_unselected_row.setVisible(true);
+                    lbl_success_row.setVisible(false);
+                }
+            
+        }
+        });
 
         
         //TableView que muestra materiales: libros
@@ -530,6 +610,84 @@ public class InterfaceModules {
         tvw_viewBooks.setPrefSize(1100, 475);
         gpn_viewMaterial.add(tvw_viewBooks, 1, 1);
         
+        
+        HBox hbx_2nodesB = new HBox();
+        hbx_2nodesB.setSpacing(10);
+        
+        //label por si no selecciono un item en la tabla
+        Label lbl_unselected_rowB = new Label("No ha seleccionado un ejemplar");
+        lbl_unselected_rowB.setVisible(false);
+        lbl_unselected_rowB.setTextFill(Color.RED);
+        lbl_unselected_rowB.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        
+        //exito al ingresar ejemplares
+        Label lbl_success_rowB = new Label("Increased succesfully!");
+        lbl_success_rowB.setVisible(false);
+        lbl_success_rowB.setTextFill(Color.GREEN);
+        lbl_success_rowB.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        
+        //inrementalibros
+        Button btn_increaseAvaibilityB = new Button("Aumentar disponibilidad");
+        btn_increaseAvaibilityB.setVisible(true);
+        btn_increaseAvaibilityB.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                
+                Books book1 = tvw_viewBooks.getSelectionModel().getSelectedItem();
+                
+                if(book1 != null){
+                    
+                    lbl_unselected_rowB.setVisible(false);
+                    
+                    //ventana de alerta para ingresar el aumento de disponibilidad
+                    List<String> choices = new ArrayList<>();
+                    choices.add("1");
+                    choices.add("2");
+                    choices.add("3");
+                    choices.add("4");
+                    choices.add("5");
+                    choices.add("6");
+                    choices.add("7");
+                    choices.add("8");
+                    choices.add("9");
+                    choices.add("10");
+                    
+                    ChoiceDialog<String> dialog = new ChoiceDialog<>("1", choices);
+                    dialog.setTitle("Disponibilidad");
+                    dialog.setHeaderText("Ingrese el aumento de libros");
+                    dialog.setContentText("Cantidad");
+                    
+                    // obtener el valor.
+                    Optional<String> result = dialog.showAndWait();
+                    if (result.isPresent()){
+                        
+                            
+                        try {
+                            int quanty = Integer.parseInt(result.get());
+                            if(bfile.avaibilityBook(book1.getSignature(),quanty)){
+                                ObservableList<Books> books = bfile.getBooks();
+                                tvw_viewBooks.setItems(books);
+                                lbl_success_rowB.setVisible(true);
+                            }else{
+                                
+                            }
+                        } catch (IOException ex) {
+                            Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                } else { //si no selecciono nada en la columna
+                    lbl_unselected_rowB.setVisible(true);
+                    lbl_success_rowB.setVisible(false);
+                }
+            
+        }
+        });
+        
+        //se annaden el boton y el label para que deja debajo de la tabla
+        hbx_2nodesB.getChildren().addAll(btn_increaseAvaibilityB, lbl_unselected_rowB, lbl_success_rowB);
+        gpn_viewMaterial.add(hbx_2nodesB, 1, 3);
+        
         Label lbl_titleBooks = new Label("Libros");
         lbl_titleBooks.setFont(Font.font("Opens Sans"));
         lbl_titleBooks.setStyle("-fx-font-weight: bold; -fx-font-size: 25");
@@ -540,6 +698,8 @@ public class InterfaceModules {
         lbl_titleAudioVisuals.setFont(Font.font("Opens Sans"));
         lbl_titleAudioVisuals.setStyle("-fx-font-weight: bold; -fx-font-size: 25");
         gpn_viewMaterial.add(lbl_titleAudioVisuals, 1, 2);
+        
+        btn_increaseAvaibility.setVisible(true);
 
         Button btn_viewBooks = new Button("Ver libros");
         btn_viewBooks.setOnAction((event) -> {
@@ -547,6 +707,12 @@ public class InterfaceModules {
             lbl_titleAudioVisuals.setVisible(false);
             tvw_viewBooks.setVisible(true);
             lbl_titleBooks.setVisible(true);
+            btn_increaseAvaibilityB.setVisible(true);
+            btn_increaseAvaibility.setVisible(false);
+            hbx_2nodesB.setVisible(true);
+            hbx_2nodes.setVisible(false);
+            lbl_success_row.setVisible(false);
+            lbl_unselected_row.setVisible(false);
         });
         gpn_viewMaterial.add(btn_viewBooks, 0, 0);
 
@@ -556,6 +722,12 @@ public class InterfaceModules {
             lbl_titleBooks.setVisible(false);
             tvw_viewAudiovisual.setVisible(true);
             lbl_titleAudioVisuals.setVisible(true);
+            btn_increaseAvaibility.setVisible(true);
+            btn_increaseAvaibilityB.setVisible(false);
+            hbx_2nodes.setVisible(true);
+            hbx_2nodesB.setVisible(false);
+            lbl_success_rowB.setVisible(false);
+            lbl_unselected_rowB.setVisible(false);
         });
         gpn_viewMaterial.add(btn_viewAudiov, 1, 0);
         
