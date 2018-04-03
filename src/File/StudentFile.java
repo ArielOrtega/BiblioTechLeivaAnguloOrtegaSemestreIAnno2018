@@ -37,7 +37,9 @@ public class StudentFile {
 
         ObservableList<Student> arrayStudents= FXCollections.observableArrayList();
                 
-            try (FileInputStream fis = new FileInputStream(path); ObjectInputStream ois = new ObjectInputStream(fis)) {
+            try (FileInputStream fis = new FileInputStream(path); 
+                ObjectInputStream ois = new ObjectInputStream(fis)) {
+                
                 @SuppressWarnings("unchecked")
                 ArrayList<Student> arraylist = (ArrayList<Student>) ois.readObject();
        

@@ -53,6 +53,7 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.converter.LocalDateStringConverter;
 import javax.swing.JOptionPane;
+import org.controlsfx.control.textfield.TextFields;
 //import org.controlsfx.control.textfield.TextFields;
 
 public class InterfaceModules {
@@ -72,14 +73,18 @@ public class InterfaceModules {
     static AudioVisualFile avf;
     static String signatureB, signatureAV, signature, idLoan;
     static MainInterface mI = new MainInterface();
-    StudentFile sft;
+    StudentFile sft= new StudentFile();
+    
 
     public GridPane studentRegister() {
+       
         GridPane gridpane = new GridPane();
 
         Label lbl_title = new Label("Registrar Estudiantes");
         Label lbl_name = new Label("Nombre");
         Label lbl_entryYear = new Label("Año de ingreso");
+        Label lbl_exception= new Label("Ingresar datos correctamente");
+        lbl_exception.setVisible(false);
 
         TextField tf_name = new TextField();
         TextField tf_entryYear = new TextField();
@@ -93,14 +98,22 @@ public class InterfaceModules {
         cb_career.setEditable(false);
 
         cb_career.setOnAction((event) -> {
-            
+            try{
+             String name= tf_name.getText();
+             int year= Integer.parseInt(tf_entryYear.getText());
+                
             if (tf_name.getText().length()>0 && tf_entryYear.getText().length()>0 && cb_career.getValue().length()>0) {
-                Student s = new Student(tf_name.getText(), tf_entryYear.getText(),
+                Student s = new Student(name, year,
                         cb_career.getValue(), "metodo", methods.getStudentId(cb_career.getValue(), tf_entryYear.getText(), arrayListStudent.size()));
 
                 observableArrayStudent.add(s);
                 arrayListStudent.add(s);
 
+                tf_name.clear();
+                tf_entryYear.clear();
+            }
+            }catch(NumberFormatException nfe){
+                lbl_exception.setVisible(true);
                 tf_name.clear();
                 tf_entryYear.clear();
             }
@@ -113,12 +126,14 @@ public class InterfaceModules {
         gridpane.add(lbl_entryYear, 0, 5);
         gridpane.add(tf_entryYear, 0, 6);
         gridpane.add(cb_career, 0, 8);
+        gridpane.add(lbl_exception, 0, 9);
         gridpane.setVgap(5);
 
         return gridpane;
     }
 
     public VBox showTableView() {
+        
         TableView<Student> table = new TableView<>();
 
         TableColumn columnId = new TableColumn("Carnet");
@@ -577,8 +592,31 @@ public class InterfaceModules {
         lbl_idStudent.setTextFill(Color.BLACK);
         lbl_idStudent.setFont(Font.font("Arial", FontWeight.BOLD, 15));
         gpn_enterLoan.add(lbl_idStudent, 0, 3);
+        
+        Label lbl_exception= new Label("Estudiante no encontrado");
+        lbl_exception.setTextFill(Color.RED);
+        lbl_exception.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        lbl_exception.setVisible(false);
+        gpn_enterLoan.add(lbl_exception, 1, 4);
 
         tfd_idStudent = new TextField();
+        
+        tfd_idStudent.setOnAction((event) -> {
+            try {
+                LogicalMethods methods= new LogicalMethods();
+                if(!methods.checkStudentRecord(tfd_idStudent.getText())){
+                    tfd_idStudent.clear();
+                    lbl_exception.setVisible(true);
+                    btn_checkStudent.setDisable(true);
+                }else{
+                    btn_checkStudent.setDisable(false);
+                    lbl_exception.setVisible(false);
+                }
+            } catch (FileNotFoundException | ClassNotFoundException | OptionalDataException ex) {
+                Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+        });
+        
         gpn_enterLoan.add(tfd_idStudent, 1, 3);
 
         Label lbl_notValue = new Label("Ingresar un valor");
@@ -695,15 +733,26 @@ public class InterfaceModules {
             @Override
             public void handle(ActionEvent event) {
 
-                tfd_signatureAV.setVisible(false);
-                lbl_signature.setVisible(true);
-                tfd_signatureB.setVisible(true);
-                lbl_deliveryDay.setVisible(true);
-                dpk_delivaeyDay.setVisible(true);
-                btn_enterLoan.setVisible(true);
-                btn_exit.setVisible(true);
-                tfd_signatureB.setText("ISBN-");
-                dpk_delivaeyDay.setValue(LocalDate.now());
+                try {
+                    tfd_signatureAV.setVisible(false);
+                    lbl_signature.setVisible(true);
+                    tfd_signatureB.setVisible(true);
+                    lbl_deliveryDay.setVisible(true);
+                    dpk_delivaeyDay.setVisible(true);
+                    btn_enterLoan.setVisible(true);
+                    btn_exit.setVisible(true);
+                    
+                    //tfd_signatureB.setText("ISBN-");
+                    LogicalMethods methods= new LogicalMethods();
+                    String options[]= methods.autocompleteOptions();
+                    TextFields.bindAutoCompletion(tfd_signatureB, options);
+                    
+                    btn_enterLoan.setDisable(true);                                       
+                    dpk_delivaeyDay.setValue(LocalDate.now());
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(InterfaceModules.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
             }
         });
@@ -812,38 +861,38 @@ public class InterfaceModules {
         });
         gpn_enterLoan.add(btn_enterLoan, 4, 4);
 
-//        btn_exit = new Button("Salir");
-//        btn_exit.setVisible(false);
-//        btn_exit.setOnAction((event) -> {
-//            
-////            lbl_signature.setVisible(false);
-////            tfd_signatureB.setVisible(false);
-////            lbl_deliveryDay.setVisible(false);
-////            dpk_delivaeyDay.setVisible(false);
-////            lbl_choise.setVisible(false);
-////            rdb_choiceBook.setVisible(false);
-////            rdb_choiceAV.setVisible(false);
-////            btn_enterLoan.setVisible(false);
-////            lbl_warning.setVisible(false);
-////            lbl_success.setVisible(false);
-////            lbl_info.setVisible(false);
-////            btn_exit.setVisible(false);
-////            tfd_signatureAV.setVisible(false);
-////            lbl_idStudent.setVisible(true);
-////            tfd_idStudent.setVisible(true);
-////            btn_checkStudent.setVisible(true);
-////            tfd_idStudent.setText("");
-////            tfd_signatureAV.setText("");
-////            tfd_signatureB.setText("");
-////            dpk_delivaeyDay.setValue(LocalDate.now());
-////            tfd_signatureB.setDisable(false);
-////            tfd_signatureAV.setDisable(false);
-////            dpk_delivaeyDay.setDisable(false);
-////            rdb_choiceBook.setDisable(false);
-////            rdb_choiceAV.setDisable(false);
-////            btn_enterLoan.setDisable(false);
-//        });
-//        gpn_enterLoan.add(btn_exit, 4, 6);
+        btn_exit = new Button("Salir");
+        btn_exit.setVisible(false);
+        btn_exit.setOnAction((event) -> {
+            
+//            lbl_signature.setVisible(false);
+//            tfd_signatureB.setVisible(false);
+//            lbl_deliveryDay.setVisible(false);
+//            dpk_delivaeyDay.setVisible(false);
+//            lbl_choise.setVisible(false);
+//            rdb_choiceBook.setVisible(false);
+//            rdb_choiceAV.setVisible(false);
+//            btn_enterLoan.setVisible(false);
+//            lbl_warning.setVisible(false);
+//            lbl_success.setVisible(false);
+//            lbl_info.setVisible(false);
+//            btn_exit.setVisible(false);
+//            tfd_signatureAV.setVisible(false);
+//            lbl_idStudent.setVisible(true);
+//            tfd_idStudent.setVisible(true);
+//            btn_checkStudent.setVisible(true);
+//            tfd_idStudent.setText("");
+//            tfd_signatureAV.setText("");
+//            tfd_signatureB.setText("");
+//            dpk_delivaeyDay.setValue(LocalDate.now());
+//            tfd_signatureB.setDisable(false);
+//            tfd_signatureAV.setDisable(false);
+//            dpk_delivaeyDay.setDisable(false);
+//            rdb_choiceBook.setDisable(false);
+//            rdb_choiceAV.setDisable(false);
+//            btn_enterLoan.setDisable(false);
+        });
+        gpn_enterLoan.add(btn_exit, 4, 6);
 
         return gpn_enterLoan;
 

@@ -30,7 +30,7 @@ public class LogicalMethods {
     public boolean checkStudentRecord(String idStudent) throws FileNotFoundException, ClassNotFoundException, OptionalDataException{
         
         for (int i = 0; i < stf.readFile().size(); i++) {
-            if (stf.readFile().get(i).getId().equals(idStudent)) {
+            if (stf.readFile().get(i).getId().equalsIgnoreCase(idStudent)) {
                 return true;
             }
         }//for

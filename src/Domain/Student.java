@@ -8,12 +8,12 @@ public class Student implements Serializable{
     
     private static final long serialVersionUID=1L;
     private String name;
-    private String entryYear;
+    private int entryYear;
     private String career;
     private String previousLoans;
     private String id;
 
-    public Student(String name, String entryYear, String career, String previousLoans, String id) {
+    public Student(String name, int entryYear, String career, String previousLoans, String id) {
         this.name = name;
         this.entryYear = entryYear;
         this.career = career;
@@ -29,11 +29,11 @@ public class Student implements Serializable{
         this.name = name;
     }
 
-    public String getEntryYear() {
+    public int getEntryYear() {
         return entryYear;
     }
 
-    public void setEntryYear(String entryYear) {
+    public void setEntryYear(int entryYear) {
         this.entryYear = entryYear;
     }
 
